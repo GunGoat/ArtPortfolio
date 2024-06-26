@@ -1,8 +1,8 @@
-using Artportfolio.Web.Models;
+using ArtPortfolio.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
-namespace Artportfolio.Web.Controllers {
+namespace ArtPortfolio.Web.Controllers {
 	public class HomeController : Controller {
 		private readonly ILogger<HomeController> _logger;
 

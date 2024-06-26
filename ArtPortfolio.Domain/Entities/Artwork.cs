@@ -28,11 +28,12 @@ public class Artwork {
 	[MaxLength(100)]
 	public string Dimensions { get; set; }
 
-	[Url]
-	public string ImageUrl { get; set; }
+    [MaxLength(255)]
+    public string ImageUrl { get; set; } // Relative path to the image file
 
-	// Foreign Key
-	[ForeignKey("Artist")]
+
+    // Foreign Key
+    [ForeignKey("Artist")] 
 	public int ArtistId { get; set; }
 
 	// Navigation property

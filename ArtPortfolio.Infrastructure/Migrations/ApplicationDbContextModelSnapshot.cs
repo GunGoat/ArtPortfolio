@@ -54,7 +54,8 @@ namespace ArtPortfolio.Infrastructure.Migrations
 
                     b.Property<string>("ProfilePictureUrl")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Website")
                         .IsRequired()
@@ -73,19 +74,19 @@ namespace ArtPortfolio.Infrastructure.Migrations
                             Email = "vincent.vangogh@example.com",
                             FirstName = "Vincent",
                             LastName = "van Gogh",
-                            ProfilePictureUrl = "https://example.com/vangogh.jpg",
+                            ProfilePictureUrl = "images/artist/vangogh.jpg",
                             Website = "https://www.vangoghgallery.com/"
                         },
                         new
                         {
                             Id = 2,
-                            Biography = "Spanish painter, sculptor, printmaker, ceramicist and stage designer.",
-                            DateOfBirth = new DateTime(1881, 10, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "pablo.picasso@example.com",
-                            FirstName = "Pablo",
-                            LastName = "Picasso",
-                            ProfilePictureUrl = "https://example.com/picasso.jpg",
-                            Website = "https://www.picasso.com/"
+                            Biography = "Dutch draughtsman, painter, and printmaker.",
+                            DateOfBirth = new DateTime(1606, 7, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "rembrandt@example.com",
+                            FirstName = "Rembrandt",
+                            LastName = "van Rijn",
+                            ProfilePictureUrl = "images/artist/rembrandt.jpg",
+                            Website = "https://www.rembrandthuis.nl/"
                         });
                 });
 
@@ -115,7 +116,8 @@ namespace ArtPortfolio.Infrastructure.Migrations
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Medium")
                         .IsRequired()
@@ -139,9 +141,9 @@ namespace ArtPortfolio.Infrastructure.Migrations
                             Id = 1,
                             ArtistId = 1,
                             CreationDate = new DateTime(1889, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "A famous painting by Vincent van Gogh.",
+                            Description = "Starry Night is one of the most recognized pieces of art in the world. It depicts the view from the east-facing window of his asylum room at Saint-Rémy-de-Provence, just before sunrise, with the addition of an ideal village. The swirling patterns in the sky, the glowing moon and stars, and the sleepy village below create a dynamic and captivating scene that exemplifies his unique style. This painting captures the turbulence and beauty of the night sky, evoking deep emotions and awe.",
                             Dimensions = "73.7 cm × 92.1 cm",
-                            ImageUrl = "https://example.com/starrynight.jpg",
+                            ImageUrl = "images/artwork/starrynight.jpg",
                             Medium = "Oil on canvas",
                             Title = "Starry Night"
                         },
@@ -150,9 +152,9 @@ namespace ArtPortfolio.Infrastructure.Migrations
                             Id = 2,
                             ArtistId = 1,
                             CreationDate = new DateTime(1888, 8, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "A series of paintings by Vincent van Gogh.",
+                            Description = "Sunflowers is a series of paintings that are among the most famous works of Vincent van Gogh. These paintings were created to decorate the room of his friend and fellow artist, Paul Gauguin. The bright and vivid yellows, combined with the dynamic brushstrokes, capture the essence of the flowers in various stages of life, from full bloom to withering. The series reflects Van Gogh's fascination with the beauty of nature and his innovative approach to color and composition.",
                             Dimensions = "95 cm × 73 cm",
-                            ImageUrl = "https://example.com/sunflowers.jpg",
+                            ImageUrl = "images/artwork/sunflowers.jpg",
                             Medium = "Oil on canvas",
                             Title = "Sunflowers"
                         },
@@ -161,9 +163,9 @@ namespace ArtPortfolio.Infrastructure.Migrations
                             Id = 3,
                             ArtistId = 1,
                             CreationDate = new DateTime(1888, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "A painting by Vincent van Gogh of his bedroom.",
+                            Description = "The Bedroom is one of Vincent van Gogh's best-known works. It depicts his own bedroom in Arles, France, with bright and bold colors intended to express absolute 'rest' or 'sleep.' The skewed perspective, the vibrant palette, and the simplicity of the room's furnishings convey a sense of tranquility and personal space. This painting reflects his longing for a place of comfort and refuge, and its intimate nature makes it a touching piece of his collection.",
                             Dimensions = "72 cm × 90 cm",
-                            ImageUrl = "https://example.com/thebedroom.jpg",
+                            ImageUrl = "images/artwork/thebedroom.jpg",
                             Medium = "Oil on canvas",
                             Title = "The Bedroom"
                         },
@@ -171,34 +173,34 @@ namespace ArtPortfolio.Infrastructure.Migrations
                         {
                             Id = 4,
                             ArtistId = 2,
-                            CreationDate = new DateTime(1937, 10, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "A famous painting by Pablo Picasso.",
-                            Dimensions = "60 cm × 49 cm",
-                            ImageUrl = "https://example.com/weepingwoman.jpg",
+                            CreationDate = new DateTime(1642, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "The Night Watch is one of the most famous Dutch Golden Age paintings. It depicts a group of city guards moving out, led by Captain Frans Banning Cocq and his lieutenant, Willem van Ruytenburch. The painting is renowned for its colossal size, dramatic use of light and shadow (tenebrism), and the perception of motion in what would have traditionally been a static military group portrait. The intricate details, such as the expressions of the guards, the play of light, and the overall composition, draw viewers into the dynamic scene.",
+                            Dimensions = "363 cm × 437 cm",
+                            ImageUrl = "images/artwork/nightwatch.jpg",
                             Medium = "Oil on canvas",
-                            Title = "The Weeping Woman"
+                            Title = "The Night Watch"
                         },
                         new
                         {
                             Id = 5,
                             ArtistId = 2,
-                            CreationDate = new DateTime(1937, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "A mural-sized oil painting on canvas by Pablo Picasso.",
-                            Dimensions = "349 cm × 776 cm",
-                            ImageUrl = "https://example.com/guernica.jpg",
+                            CreationDate = new DateTime(1632, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "The Anatomy Lesson of Dr. Nicolaes Tulp is a group portrait of Dr. Tulp and several other Amsterdam surgeons. It captures a public dissection, a common practice for medical education at the time. The painting stands out for its realistic portrayal of the human anatomy and the lifelike depiction of the surgeons' faces. The lighting highlights the central figures, creating a stark contrast with the dark background, which enhances the dramatic effect. This work is a prime example of Rembrandt's skill in rendering texture, expression, and atmosphere.",
+                            Dimensions = "169.5 cm × 216.5 cm",
+                            ImageUrl = "images/artwork/anatomylesson.jpg",
                             Medium = "Oil on canvas",
-                            Title = "Guernica"
+                            Title = "The Anatomy Lesson of Dr. Nicolaes Tulp"
                         },
                         new
                         {
                             Id = 6,
                             ArtistId = 2,
-                            CreationDate = new DateTime(1907, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "A large oil painting created in 1907 by Pablo Picasso.",
-                            Dimensions = "243.9 cm × 233.7 cm",
-                            ImageUrl = "https://example.com/lesdemoiselles.jpg",
+                            CreationDate = new DateTime(1665, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "Self-Portrait with Two Circles is a powerful self-portrait that showcases Rembrandt's mastery of chiaroscuro and his deep understanding of human emotion. In this painting, Rembrandt presents himself as an older man, holding his tools and standing confidently in front of two mysterious circles. The circles have been interpreted in various ways, but they add an element of intrigue to the composition. The detailed rendering of his face and the rich textures of his clothing reflect his introspective and honest approach to self-portraiture.",
+                            Dimensions = "114.3 cm × 94 cm",
+                            ImageUrl = "images/artwork/selfportrait.jpg",
                             Medium = "Oil on canvas",
-                            Title = "Les Demoiselles d'Avignon"
+                            Title = "Self-Portrait with Two Circles"
                         });
                 });
 

@@ -26,8 +26,8 @@ public class Artist {
 	[Url]
 	public string Website { get; set; }
 
-	[Url]
-	public string ProfilePictureUrl { get; set; }
+    [MaxLength(255)]
+    public string ProfilePictureUrl { get; set; }
 
 	[Required]
 	public DateTime DateOfBirth { get; set; }

@@ -1,4 +1,4 @@
-namespace Artportfolio.Web.Models {
+namespace ArtPortfolio.Web.Models {
 	public class ErrorViewModel {
 		public string? RequestId { get; set; }
 

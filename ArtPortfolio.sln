@@ -5,11 +5,11 @@ VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtPortfolio.Domain", "ArtPortfolio.Domain\ArtPortfolio.Domain.csproj", "{FC6A6170-30B4-4D1D-A91B-8C4DB0498B5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArtPortfolio.Infrastructure", "ArtPortfolio.Infrastructure\ArtPortfolio.Infrastructure.csproj", "{E06E6A94-8740-4364-B276-B19ECF878C2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtPortfolio.Infrastructure", "ArtPortfolio.Infrastructure\ArtPortfolio.Infrastructure.csproj", "{E06E6A94-8740-4364-B276-B19ECF878C2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArtPortfolio.Application", "ArtPortfolio.Application\ArtPortfolio.Application.csproj", "{C0CEF637-A5B0-4B7D-83B3-E46971E391F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtPortfolio.Application", "ArtPortfolio.Application\ArtPortfolio.Application.csproj", "{C0CEF637-A5B0-4B7D-83B3-E46971E391F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Artportfolio.Web", "Artportfolio.Web\Artportfolio.Web.csproj", "{0CA30092-650F-4533-9DB9-C4C9275CCD8D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtPortfolio.Web", "Artportfolio.Web\ArtPortfolio.Web.csproj", "{0CA30092-650F-4533-9DB9-C4C9275CCD8D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
