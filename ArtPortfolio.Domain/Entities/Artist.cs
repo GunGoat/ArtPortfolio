@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,6 +26,9 @@ public class Artist {
 
 	[Url]
 	public string Website { get; set; }
+
+    [NotMapped]
+    public IFormFile? ProfilePicture { get; set; }
 
     [MaxLength(255)]
     public string ProfilePictureUrl { get; set; }

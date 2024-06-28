@@ -1,58 +1,30 @@
 ﻿@model IEnumerable<Artwork>
 @{
-    ViewData["Title"] = "Artworks";
+    ViewData["Title"] = "Artworks Gallery";
 }
 
-<h1>Artworks</h1>
+<div class="row" data-masonry='{"percentPosition": true }'>
+    @foreach (var artwork in @Model) {
+        <div class="col-12 col-md-6 col-lg-3 mb-4">
+            <div class="card position-relative" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#artworkDetailsModal-@(artwork.Id)">
+                <img src="@artwork.ImageUrl" class="card-img-top" alt="...">
+                <div class="card-img-overlay d-flex align-items-end">
+                    <div class="bg-black-overlay w-100 text-white">
+                        <p class="card-text mt-auto">@artwork.Title</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreationDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Medium)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Dimensions)
-            </th>
-            <th>
-                @* @Html.DisplayNameFor(model => model.Artist.Name) *@
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model) {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreationDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Medium)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Dimensions)
-                </td>
-                <td>
-                    @* @Html.DisplayFor(modelItem => item.Artist.Name) *@
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+@foreach(var artwork in @Model) {
+    <!-- Modal -->
+    <div class="modal fade" id="artworkDetailsModal-@(artwork.Id)" tabindex="-1" aria-labelledby="artworkDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-body">
+                <partial name="_ArtworkDetail" model="@artwork" />
+            </div>
+        </div>
+    </div>
+} 

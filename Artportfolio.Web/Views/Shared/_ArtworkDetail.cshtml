@@ -1,0 +1,28 @@
+﻿@model Artwork
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">@Model.Title</h5>
+        <div class="btn-group">
+            <a asp-action="Update" asp-controller="Artwork" asp-route-id="@Model.Id" class="btn btn-success">Edit</a>
+            <a asp-action="Delete" asp-controller="Artwork" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-12 col-md-9" style="max-height: 70vh; overflow-y: auto;">
+                <div class="text-center mb-4">
+                    <img src="@Model.ImageUrl" class="img-fluid" alt="@Model.Title">
+                </div>
+            </div>
+            <div class="col-12 col-md-3" style="max-height: 70vh; overflow-y: auto;">
+                <p>@Model.Description</p>
+                <p><strong>Creation Date:</strong> @Model.CreationDate.ToString("MMMM dd, yyyy")</p>
+                <p><strong>Medium:</strong> @Model.Medium</p>
+                <p><strong>Dimensions:</strong> @Model.Dimensions</p>
+                <p><strong>Artist:</strong> @($"{Model.Artist.FirstName} {Model.Artist.LastName}")</p>
+                <!-- Add other details as needed -->
+            </div>
+        </div>
+    </div>
+</div>

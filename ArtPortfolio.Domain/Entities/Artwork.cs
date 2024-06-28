@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Http;
 
 namespace ArtPortfolio.Domain.Entities;
 
@@ -28,14 +30,18 @@ public class Artwork {
 	[MaxLength(100)]
 	public string Dimensions { get; set; }
 
+    [NotMapped]
+    public IFormFile? Image { get; set; }
+
     [MaxLength(255)]
     public string ImageUrl { get; set; } // Relative path to the image file
 
-
     // Foreign Key
-    [ForeignKey("Artist")] 
-	public int ArtistId { get; set; }
+    [ForeignKey("Artist")]
+    [Display(Name = "Artist")]
+    public int ArtistId { get; set; }
 
-	// Navigation property
-	public Artist Artist { get; set; }
+    // Navigation property
+    [ValidateNever]
+    public Artist Artist { get; set; }
 }

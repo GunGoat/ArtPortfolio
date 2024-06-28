@@ -1,0 +1,65 @@
+﻿@model ArtPortfolio.Domain.Entities.Artist
+@{
+    ViewData["Title"] = "Update Artist";
+}
+<h2>Update Artist</h2>
+
+<div class="container">
+    <form asp-action="Update" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label asp-for="FirstName" class="control-label"></label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="LastName" class="control-label"></label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Biography" class="control-label"></label>
+            <textarea asp-for="Biography" class="form-control"></textarea>
+            <span asp-validation-for="Biography" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Website" class="control-label"></label>
+            <input asp-for="Website" class="form-control" />
+            <span asp-validation-for="Website" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="DateOfBirth" class="control-label"></label>
+            <input asp-for="DateOfBirth" class="form-control" />
+            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ProfilePicture" class="control-label"></label>
+            <input asp-for="ProfilePicture" type="file" class="form-control" />
+            <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+        </div>
+        <div class="form-group" hidden>
+            <label asp-for="ProfilePictureUrl" class="control-label"></label>
+            <input asp-for="ProfilePictureUrl" class="form-control" readonly />
+            <span asp-validation-for="ProfilePictureUrl" class="text-danger"></span>
+            @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl)) {
+                <div class="mt-2">
+                    <img src="@Url.Content($"/{Model.ProfilePictureUrl}")" alt="Image Preview" style="max-width: 100%; height: auto;" />
+                </div>
+            }
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Save" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
