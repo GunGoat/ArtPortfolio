@@ -16,7 +16,8 @@ public class ArtistController : Controller {
     }
 
     public IActionResult Index() {
-        return View();
+        var artists = _unitOfWork.Artist.GetAll(includeProperties: "Artworks");
+        return View(artists);
     }
 
     public IActionResult Create() {
@@ -25,6 +26,7 @@ public class ArtistController : Controller {
 
     [HttpPost]
     public IActionResult Create(Artist artist) {
+        ModelState.Remove("ProfilePictureUrl");
         if (ModelState.IsValid) {
             if (artist.ProfilePicture is not null) {
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(artist.ProfilePicture.FileName)}";
@@ -36,10 +38,10 @@ public class ArtistController : Controller {
 
             _unitOfWork.Artist.Add(artist);
             _unitOfWork.Artist.Save();
-            TempData["success"] = "The artwork has been created successfully.";
+            TempData["success"] = "The artist has been created successfully.";
             return RedirectToAction(nameof(Index));
         }
-        TempData["error"] = "The artwork could not be created.";
+        TempData["error"] = "The artist could not be created.";
         return View();
     }
 
@@ -54,6 +56,7 @@ public class ArtistController : Controller {
 
     [HttpPost]
     public IActionResult Update(Artist artist) {
+        ModelState.Remove("ProfilePictureUrl");
         if (ModelState.IsValid) {
             if (artist.ProfilePicture is not null) {
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(artist.ProfilePicture.FileName)}";
@@ -85,8 +88,8 @@ public class ArtistController : Controller {
     }
 
     [HttpPost]
-    public IActionResult Delete(Artwork artwork) {
-        int id = artwork.Id;
+    public IActionResult Delete(Artist artist) {
+        int id = artist.Id;
         Artist? artistFromDb = _unitOfWork.Artist.Get(artwork => artwork.Id == id);
         if (artistFromDb is not null) {
             if (!string.IsNullOrEmpty(artistFromDb.ProfilePictureUrl)) {
