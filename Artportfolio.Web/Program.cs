@@ -12,6 +12,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 	option => option.UseSqlServer(
 		builder.Configuration["ConnectionStrings:DefaultConnection"])
 	);
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
 

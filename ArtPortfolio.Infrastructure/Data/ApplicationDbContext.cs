@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ArtPortfolio.Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext {
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
 
 	public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -17,7 +17,9 @@ public class ApplicationDbContext : DbContext {
 
 	public DbSet<Artwork> Artworks { get; set; }
 
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+    public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
 		base.OnConfiguring(optionsBuilder);
 	}
 
@@ -33,7 +35,7 @@ public class ApplicationDbContext : DbContext {
                 Biography = "Dutch post-impressionist painter.",
                 Email = "vincent.vangogh@example.com",
                 Website = "https://www.vangoghgallery.com/",
-                ProfilePictureUrl = "images/artist/vangogh.jpg",
+                ProfilePictureUrl = "/images/artist/vangogh.jpg",
                 DateOfBirth = new DateTime(1853, 3, 30)
             },
             new Artist {
@@ -43,7 +45,7 @@ public class ApplicationDbContext : DbContext {
                 Biography = "Dutch draughtsman, painter, and printmaker.",
                 Email = "rembrandt@example.com",
                 Website = "https://www.rembrandthuis.nl/",
-                ProfilePictureUrl = "images/artist/rembrandt.jpg",
+                ProfilePictureUrl = "/images/artist/rembrandt.jpg",
                 DateOfBirth = new DateTime(1606, 7, 15)
             }
         );
@@ -58,7 +60,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1889, 6, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "73.7 cm × 92.1 cm",
-                ImageUrl = "images/artwork/starrynight.jpg",
+                ImageUrl = "/images/artwork/starrynight.jpg",
                 ArtistId = 1
             },
             new Artwork {
@@ -68,7 +70,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1888, 8, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "95 cm × 73 cm",
-                ImageUrl = "images/artwork/sunflowers.jpg",
+                ImageUrl = "/images/artwork/sunflowers.jpg",
                 ArtistId = 1
             },
             new Artwork {
@@ -78,7 +80,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1888, 10, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "72 cm × 90 cm",
-                ImageUrl = "images/artwork/thebedroom.jpg",
+                ImageUrl = "/images/artwork/thebedroom.jpg",
                 ArtistId = 1
             },
             new Artwork {
@@ -88,7 +90,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1889, 5, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "71 cm × 93 cm",
-                ImageUrl = "images/artwork/irises.jpg",
+                ImageUrl = "/images/artwork/irises.jpg",
                 ArtistId = 1
             },
             new Artwork {
@@ -98,7 +100,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1889, 1, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "60 cm × 49 cm",
-                ImageUrl = "images/artwork/selfportraitbandagedear.jpg",
+                ImageUrl = "/images/artwork/selfportraitbandagedear.jpg",
                 ArtistId = 1
             },
             new Artwork {
@@ -108,7 +110,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1890, 7, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "50 cm × 103 cm",
-                ImageUrl = "images/artwork/wheatfieldwithcrows.jpg",
+                ImageUrl = "/images/artwork/wheatfieldwithcrows.jpg",
                 ArtistId = 1
             },
             // Rembrandt's Artworks
@@ -119,7 +121,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1642, 1, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "363 cm × 437 cm",
-                ImageUrl = "images/artwork/nightwatch.jpg",
+                ImageUrl = "/images/artwork/nightwatch.jpg",
                 ArtistId = 2
             },
             new Artwork {
@@ -129,7 +131,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1632, 1, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "169.5 cm × 216.5 cm",
-                ImageUrl = "images/artwork/anatomylesson.jpg",
+                ImageUrl = "/images/artwork/anatomylesson.jpg",
                 ArtistId = 2
             },
             new Artwork {
@@ -139,7 +141,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1665, 1, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "114.3 cm × 94 cm",
-                ImageUrl = "images/artwork/selfportrait.jpg",
+                ImageUrl = "/images/artwork/selfportrait.jpg",
                 ArtistId = 2
             },
             new Artwork {
@@ -149,7 +151,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1667, 1, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "121.5 cm × 166.5 cm",
-                ImageUrl = "images/artwork/jewishbride.jpg",
+                ImageUrl = "/images/artwork/jewishbride.jpg",
                 ArtistId = 2
             },
             new Artwork {
@@ -159,7 +161,7 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1633, 1, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "160 cm × 128 cm",
-                ImageUrl = "images/artwork/stormontheseaofgalilee.jpg",
+                ImageUrl = "/images/artwork/stormontheseaofgalilee.jpg",
                 ArtistId = 2
             },
             new Artwork {
@@ -169,10 +171,9 @@ public class ApplicationDbContext : DbContext {
                 CreationDate = new DateTime(1662, 1, 1),
                 Medium = "Oil on canvas",
                 Dimensions = "191.5 cm × 279 cm",
-                ImageUrl = "images/artwork/syndicsofthedrapersguild.jpg",
+                ImageUrl = "/images/artwork/syndicsofthedrapersguild.jpg",
                 ArtistId = 2
             }
         );
     }
-
 }
