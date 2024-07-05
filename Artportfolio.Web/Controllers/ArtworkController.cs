@@ -1,27 +1,51 @@
 ﻿using ArtPortfolio.Application.Common.Interfaces;
+using ArtPortfolio.Application.Common.Utility;
 using ArtPortfolio.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using X.PagedList;
+using X.PagedList.Mvc.Core;
 
 namespace ArtPortfolio.Web.Controllers;
+
 
 public class ArtworkController : Controller {
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly IWebHostEnvironment _webHostEnvironment;
     private const string artworkImagesPath = @"images\artwork";
+    private static readonly PagedListRenderOptions PaginationOptions = new PagedListRenderOptions {
+        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+        DisplayLinkToLastPage = PagedListDisplayMode.Always,
+        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+        DisplayLinkToIndividualPages = true,
+        DisplayPageCountAndCurrentLocation = false,
+        MaximumPageNumbersToDisplay = 5,
+        UlElementClasses = new[] { "pagination" },
+        LiElementClasses = Enumerable.Empty<string>().ToList(),
+        PageClasses = new[] { "page-link" },
+        FunctionToDisplayEachPageNumber = (pageNumber => pageNumber.ToString())
+    };
 
     public ArtworkController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment) {
 		_unitOfWork = unitOfWork;
 		_webHostEnvironment = webHostEnvironment;
 	}
 
-	public IActionResult Index() {
-		var artworks = _unitOfWork.Artwork.GetAll(includeProperties: "Artist");
-		return View(artworks);
+	public IActionResult Index(int? page) {
+        int pageSize = 11;
+        int pageNumber = page ?? 1;
+        var artworks = _unitOfWork.Artwork.GetAll(includeProperties: "Artist")
+                                          .ToPagedList(pageNumber, pageSize);
+        ViewBag.PaginationOptions = PaginationOptions;
+
+        return View(artworks);
 	}
 
+    [Authorize(Roles = SD.Role_Artist)]
     public IActionResult Create() {
         var artists = _unitOfWork.Artist.GetAll().Select(artist =>
         new SelectListItem {
