@@ -3,48 +3,59 @@
     ViewData["Title"] = "Delete Artwork";
 }
 
-<h2>Delete Artwork</h2>
-
-<div class="container">
-    <form asp-action="Delete" method="post">
-        <div class="form-group">
-            <label asp-for="Title" class="control-label"></label>
-            <input asp-for="Title" class="form-control" disabled />
+<div class="container pt-5">
+    <div class="card shadow border">
+        <div class="card-header bg-danger bg-gradient ml-0 py-4">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="py-2 text-white">Delete Artwork</h2>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label class="control-label">Artist</label>
-            <input type="text" class="form-control" value="@($"{Model.Artist.FirstName} {Model.Artist.LastName}")" disabled />
-            <input asp-for="ArtistId" type="hidden" />
+        <div class="card-body p-4">
+            <div class="row pt-3">
+                <div class="col-md-12">
+                    <form class="row" asp-action="Delete" method="post">
+                        <div class="form-group mb-3 col-md-12">
+                            <label asp-for="Title" class="control-label"></label>
+                            <input asp-for="Title" class="form-control" disabled />
+                        </div>
+                        <div class="form-group mb-3 col-md-12">
+                            <label class="control-label">Artist</label>
+                            <input type="text" class="form-control" value="@($"{Model.Artist.FirstName} {Model.Artist.LastName}")" disabled />
+                            <input asp-for="ArtistId" type="hidden" />
+                        </div>
+                        <div class="form-group mb-3 col-md-12">
+                            <label asp-for="Description" class="control-label"></label>
+                            <textarea asp-for="Description" class="form-control" disabled></textarea>
+                        </div>
+                        <div class="form-group mb-3 col-md-12">
+                            <label asp-for="CreationDate" class="control-label"></label>
+                            <input asp-for="CreationDate" class="form-control" type="date" disabled />
+                        </div>
+                        <div class="form-group mb-3 col-md-12">
+                            <label asp-for="Medium" class="control-label"></label>
+                            <input asp-for="Medium" class="form-control" disabled />
+                        </div>
+                        <div class="form-group mb-3 col-md-12">
+                            <label asp-for="Dimensions" class="control-label"></label>
+                            <input asp-for="Dimensions" class="form-control" disabled />
+                        </div>
+                        <div class="form-group mb-3 col-md-12">
+                            <label>Current Image:</label>
+                            <img src="@Model.ImageUrl" alt="Artwork Image" class="img-thumbnail" />
+                        </div>
+                        <div class="col-12">
+                            <input type="submit" value="Delete" class="w-100 btn btn-lg btn-outline-danger" />
+                            <a asp-action="Index" class="w-100 btn btn-lg btn-secondary mt-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label asp-for="Description" class="control-label"></label>
-            <textarea asp-for="Description" class="form-control" disabled></textarea>
-        </div>
-        <div class="form-group">
-            <label asp-for="CreationDate" class="control-label"></label>
-            <input asp-for="CreationDate" class="form-control" type="date" disabled />
-        </div>
-        <div class="form-group">
-            <label asp-for="Medium" class="control-label"></label>
-            <input asp-for="Medium" class="form-control" disabled />
-        </div>
-        <div class="form-group">
-            <label asp-for="Dimensions" class="control-label"></label>
-            <input asp-for="Dimensions" class="form-control" disabled />
-        </div>
-        <div class="form-group">
-            <label>Current Image:</label>
-            <img src="@Model.ImageUrl" alt="Artwork Image" class="img-thumbnail" />
-        </div>
-        <div class="form-group">
-            <input type="submit" value="Delete" class="btn btn-danger" />
-            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-        </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

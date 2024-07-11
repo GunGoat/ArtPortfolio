@@ -22,6 +22,7 @@ public class SignUpVM {
     public string Name { get; set; }
 
     [Display(Name = "Phone Number")]
+    [Phone]
     public string? PhoneNumber { get; set; }
 
     public string? RedirectUrl { get; set; }

@@ -56,7 +56,6 @@ public class ArtistController : Controller {
 
     [HttpPost]
     public IActionResult Update(Artist artist) {
-        ModelState.Remove("ProfilePictureUrl");
         if (ModelState.IsValid) {
             if (artist.ProfilePicture is not null) {
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(artist.ProfilePicture.FileName)}";
