@@ -62,22 +62,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             }
         );
 
-        // Seed data for roles
-        var artistRoleId = Guid.NewGuid().ToString();
-        var adminRoleId = Guid.NewGuid().ToString();
-        modelBuilder.Entity<IdentityRole>().HasData(
-            new IdentityRole {
-                Id = artistRoleId,
-                Name = SD.Role_Artist,
-                NormalizedName = SD.Role_Artist.ToUpper()
-            },
-            new IdentityRole {
-                Id = adminRoleId,
-                Name = SD.Role_Admin,
-                NormalizedName = SD.Role_Admin.ToUpper()
-            }
-        );
-
         // Create PasswordHasher instance
         var hasher = new PasswordHasher<ApplicationUser>();
 
@@ -118,19 +102,39 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             }
         );
 
+        // Seed data for roles if they do not already exist
+        var artistRoleId = Guid.NewGuid().ToString();
+        var adminRoleId = Guid.NewGuid().ToString();
+
+        var artistRole = modelBuilder.Entity<IdentityRole>().HasData(
+            new IdentityRole {
+                Id = artistRoleId,
+                Name = SD.Role_Artist,
+                NormalizedName = SD.Role_Artist.ToUpper()
+            }
+        );
+
+        var adminRole = modelBuilder.Entity<IdentityRole>().HasData(
+            new IdentityRole {
+                Id = adminRoleId,
+                Name = SD.Role_Admin,
+                NormalizedName = SD.Role_Admin.ToUpper()
+            }
+        );
+
         // Seed data for user-role relationships
         modelBuilder.Entity<IdentityUserRole<string>>().HasData(
             new IdentityUserRole<string> {
                 UserId = "1", // Vincent van Gogh
-                RoleId = SD.Role_Artist
+                RoleId = artistRoleId
             },
             new IdentityUserRole<string> {
                 UserId = "2", // Rembrandt
-                RoleId = SD.Role_Artist
+                RoleId = artistRoleId
             },
             new IdentityUserRole<string> {
                 UserId = "3", // Gustaf Cederström
-                RoleId = SD.Role_Artist
+                RoleId = artistRoleId
             }
         );
 
