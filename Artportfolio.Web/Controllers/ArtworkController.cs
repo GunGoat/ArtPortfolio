@@ -78,7 +78,7 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
-    [Authorize(Policy = SD.Policy_Artwork_Create_Update_Delete)]
+    [Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
     public IActionResult Create(Artwork artwork) {
         // Removing ImageUrl from ModelState so it does not affect the validation
         ModelState.Remove("ImageUrl");
@@ -116,7 +116,7 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
-    [Authorize(Policy = SD.Policy_Artwork_Create_Update_Delete)]
+    [Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
     public IActionResult Update(Artwork artwork) {
         if (ModelState.IsValid) {
             if (artwork.Image is not null) {
@@ -149,7 +149,7 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
-    [Authorize(Policy = SD.Policy_Artwork_Create_Update_Delete)]
+    [Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
     public IActionResult Delete(Artwork artwork) {
         int id = artwork.Id;
         Artwork? artworkFromDb = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");

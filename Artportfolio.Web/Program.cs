@@ -29,8 +29,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // Register the authorization handler as scoped
 builder.Services.AddScoped<IAuthorizationHandler, AccountHandler>();
 builder.Services.AddAuthorization(options => {
-    options.AddPolicy(SD.Policy_Artwork_Create_Update_Delete, policy =>
-        policy.Requirements.Add(new AccountRequirement()));
+    options.AddPolicy(SD.Policy_Artwork_Update_Delete, policy =>
+        policy.Requirements.Add(new ArtworkUpdateOrDeleteRequirement()));
+    options.AddPolicy(SD.Policy_Artwork_Create, policy =>
+        policy.Requirements.Add(new ArtworkCreateRequirement()));
 });
 
 // Configures Identity options, such as password requirements.

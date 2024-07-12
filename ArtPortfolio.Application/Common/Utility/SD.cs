@@ -9,5 +9,6 @@ namespace ArtPortfolio.Application.Common.Utility;
 public static class SD {
     public const string Role_Admin = "Admin";
     public const string Role_Artist = "Artist";
-    public const string Policy_Artwork_Create_Update_Delete = "PolicyArtist";
+    public const string Policy_Artwork_Update_Delete = "PolicyArtworkUpdateDelete";
+    public const string Policy_Artwork_Create = "PolicyArtworkCreate";
 }
