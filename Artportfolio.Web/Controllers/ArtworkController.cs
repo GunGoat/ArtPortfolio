@@ -1,8 +1,10 @@
 ﻿using ArtPortfolio.Application.Common.Interfaces;
 using ArtPortfolio.Application.Common.Utility;
 using ArtPortfolio.Domain.Entities;
+using ArtPortfolio.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -15,7 +17,9 @@ namespace ArtPortfolio.Web.Controllers;
 public class ArtworkController : Controller {
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly IWebHostEnvironment _webHostEnvironment;
-    private const string artworkImagesPath = @"images\artwork";
+	private readonly UserManager<ApplicationUser> _userManager;
+	private readonly SignInManager<ApplicationUser> _signInManager;
+	private const string artworkImagesPath = @"images\artwork";
     private static readonly PagedListRenderOptions PaginationOptions = new PagedListRenderOptions {
         DisplayLinkToFirstPage = PagedListDisplayMode.Always,
         DisplayLinkToLastPage = PagedListDisplayMode.Always,
@@ -30,19 +34,36 @@ public class ArtworkController : Controller {
         FunctionToDisplayEachPageNumber = (pageNumber => pageNumber.ToString())
     };
 
-    public ArtworkController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment) {
+    public ArtworkController(IUnitOfWork unitOfWork, 
+                             UserManager<ApplicationUser> userManager, 
+                             SignInManager<ApplicationUser> signInManager,
+							 IWebHostEnvironment webHostEnvironment) {
 		_unitOfWork = unitOfWork;
+		_userManager = userManager;
+		_signInManager = signInManager;
 		_webHostEnvironment = webHostEnvironment;
 	}
 
-	public IActionResult Index(int? page) {
-        int pageSize = 11;
+	public async Task<IActionResult> Index(int? page) {
+        int pageSize = 12;
         int pageNumber = page ?? 1;
         var artworks = _unitOfWork.Artwork.GetAll(includeProperties: "Artist")
                                           .ToPagedList(pageNumber, pageSize);
-        ViewBag.PaginationOptions = PaginationOptions;
 
-        return View(artworks);
+        var artworksVM = new ArtworksVM {
+            IsLoggedIn = _signInManager.IsSignedIn(User),
+            UserRoles = new List<string>(),
+            UserArtistId = null,
+            Artworks = artworks,
+            PaginationOptions = PaginationOptions
+		};
+		if (artworksVM.IsLoggedIn) {
+			var user = await _userManager.GetUserAsync(User);
+			artworksVM.UserRoles = await _userManager.GetRolesAsync(user);
+			artworksVM.UserArtistId = user.ArtistId;
+		}
+
+        return View(artworksVM);
 	}
 
     [Authorize(Roles = SD.Role_Artist)]
@@ -57,6 +78,7 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
+    [Authorize(Policy = SD.Policy_Artwork_Create_Update_Delete)]
     public IActionResult Create(Artwork artwork) {
         // Removing ImageUrl from ModelState so it does not affect the validation
         ModelState.Remove("ImageUrl");
@@ -94,6 +116,7 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
+    [Authorize(Policy = SD.Policy_Artwork_Create_Update_Delete)]
     public IActionResult Update(Artwork artwork) {
         if (ModelState.IsValid) {
             if (artwork.Image is not null) {
@@ -126,6 +149,7 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
+    [Authorize(Policy = SD.Policy_Artwork_Create_Update_Delete)]
     public IActionResult Delete(Artwork artwork) {
         int id = artwork.Id;
         Artwork? artworkFromDb = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");

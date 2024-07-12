@@ -4,6 +4,7 @@ using ArtPortfolio.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ArtPortfolio.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240711124829_SeedDataApplicationUser")]
+    partial class SeedDataApplicationUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,17 +105,16 @@ namespace ArtPortfolio.Infrastructure.Migrations
                             Id = "1",
                             AccessFailedCount = 0,
                             ArtistId = 1,
-                            ConcurrencyStamp = "5a2aff76-a1fc-4276-a5e6-051cc1344f58",
-                            CreatedAt = new DateTime(2024, 7, 11, 13, 31, 56, 679, DateTimeKind.Utc).AddTicks(5163),
+                            ConcurrencyStamp = "7308eca5-b35a-47b5-8e4c-3643b3ae4bed",
+                            CreatedAt = new DateTime(2024, 7, 11, 12, 48, 29, 249, DateTimeKind.Utc).AddTicks(7320),
                             Email = "vincent.vangogh@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             Name = "Vincent van Gogh",
                             NormalizedEmail = "VINCENT.VANGOGH@EXAMPLE.COM",
                             NormalizedUserName = "VINCENT.VANGOGH",
-                            PasswordHash = "AQAAAAIAAYagAAAAELVm6wU5Y8L5xcbwrQJltW6HdgpIQ+CIcQh1h1RfiWLSYM0OwyDZXvRycbWnnrioBA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8fdc281a-e215-4a7a-bdcb-215da790caaf",
+                            SecurityStamp = "d5e41618-6149-4027-ab8d-efc5083c8555",
                             TwoFactorEnabled = false,
                             UserName = "vincent.vangogh"
                         },
@@ -121,17 +123,16 @@ namespace ArtPortfolio.Infrastructure.Migrations
                             Id = "2",
                             AccessFailedCount = 0,
                             ArtistId = 2,
-                            ConcurrencyStamp = "272b6cd6-b65a-4033-b2e3-c65bd1f8f777",
-                            CreatedAt = new DateTime(2024, 7, 11, 13, 31, 56, 758, DateTimeKind.Utc).AddTicks(9208),
+                            ConcurrencyStamp = "5b503500-a0be-4d41-9496-93540c377003",
+                            CreatedAt = new DateTime(2024, 7, 11, 12, 48, 29, 249, DateTimeKind.Utc).AddTicks(7327),
                             Email = "rembrandt@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             Name = "Rembrandt van Rijn",
                             NormalizedEmail = "REMBRANDT@EXAMPLE.COM",
                             NormalizedUserName = "REMBRANDT",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDRbvohK+MQR8YUgV11pc8RZ0vGka/Hpa+Hf2FlGXQY6PKVe77n/7+dVUpJagEzUKg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "d3e4a099-3ca8-4801-8464-5a321b6102c2",
+                            SecurityStamp = "e2d94398-ee49-4b02-b17b-d6358d43ed2f",
                             TwoFactorEnabled = false,
                             UserName = "rembrandt"
                         },
@@ -140,17 +141,16 @@ namespace ArtPortfolio.Infrastructure.Migrations
                             Id = "3",
                             AccessFailedCount = 0,
                             ArtistId = 3,
-                            ConcurrencyStamp = "9c64d930-62cb-4288-bb37-864fb2b220bc",
-                            CreatedAt = new DateTime(2024, 7, 11, 13, 31, 56, 841, DateTimeKind.Utc).AddTicks(4947),
+                            ConcurrencyStamp = "390e3d02-2935-45bd-bf9b-0c989ec8aa97",
+                            CreatedAt = new DateTime(2024, 7, 11, 12, 48, 29, 249, DateTimeKind.Utc).AddTicks(7335),
                             Email = "gustaf.cederstrom@example.com",
                             EmailConfirmed = false,
                             LockoutEnabled = false,
                             Name = "Gustaf Cederström",
                             NormalizedEmail = "GUSTAF.CEDERSTROM@EXAMPLE.COM",
                             NormalizedUserName = "GUSTAF.CEDERSTROM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJ5hg6tpCHm6K+Z8b4gXXhtAEJLVq5XXVH5immYo69aYb8n6Jdn8vUgCpwswdkFY7A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "1c087e70-8eef-4959-bca1-5d99bc09ad47",
+                            SecurityStamp = "72e8d1f0-e710-44b4-a837-cf7d7c1e22db",
                             TwoFactorEnabled = false,
                             UserName = "gustaf.cederstrom"
                         });

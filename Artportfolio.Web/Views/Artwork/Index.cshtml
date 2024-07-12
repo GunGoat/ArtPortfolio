@@ -1,7 +1,7 @@
-﻿@model IPagedList<Artwork>
+﻿@model ArtworksVM
 
 <div class="row" data-masonry='{"percentPosition": true }'>
-    @foreach (var artwork in Model) {
+    @foreach (var artwork in Model.Artworks) {
         <div class="col-12 col-md-6 col-lg-3 mb-4">
             <div class="card position-relative" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#artworkDetailsModal-@(artwork.Id)">
                 <img src="@artwork.ImageUrl" class="card-img-top" alt="...">
@@ -15,21 +15,24 @@
     }
 </div>
 
-@foreach(var artwork in Model) {
+@foreach(var artwork in Model.Artworks) {
     <!-- Modal -->
     <div class="modal fade" id="artworkDetailsModal-@(artwork.Id)" tabindex="-1" aria-labelledby="artworkDetailsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-body">
-                <partial name="_ArtworkDetail" model="@artwork" />
+                <partial name="_ArtworkDetail" model="new ArtworkDetailVM { 
+                    Artwork = artwork, 
+                    IsAdmin = Model.UserRoles.Contains(SD.Role_Admin),
+                    IsArtist = Model.UserRoles.Contains(SD.Role_Artist),
+                    ArtistId = Model.UserArtistId}" />
             </div>
         </div>
     </div>
 }
 
 
-<!-- Center the pagination -->
 <div class="col-md-12">
     <div class="d-flex justify-content-center mb-4">
-        @Html.PagedListPager(Model, page => Url.Action("Index", new { page }), (PagedListRenderOptions)ViewBag.PaginationOptions)
+        @Html.PagedListPager(Model.Artworks, page => Url.Action("Index", new { page }), Model.PaginationOptions)
     </div>
 </div>

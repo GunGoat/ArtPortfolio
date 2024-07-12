@@ -1,8 +1,10 @@
 using ArtPortfolio.Application.Common;
 using ArtPortfolio.Application.Common.Interfaces;
+using ArtPortfolio.Application.Common.Utility;
 using ArtPortfolio.Domain.Entities;
 using ArtPortfolio.Infrastructure.Data;
 using ArtPortfolio.Infrastructure.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +25,13 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Configures Identity services with the application user and role types.
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// Register the authorization handler as scoped
+builder.Services.AddScoped<IAuthorizationHandler, AccountHandler>();
+builder.Services.AddAuthorization(options => {
+    options.AddPolicy(SD.Policy_Artwork_Create_Update_Delete, policy =>
+        policy.Requirements.Add(new AccountRequirement()));
+});
 
 // Configures Identity options, such as password requirements.
 builder.Services.Configure<IdentityOptions>(option => {

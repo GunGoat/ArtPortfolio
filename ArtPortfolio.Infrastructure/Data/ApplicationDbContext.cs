@@ -1,4 +1,6 @@
-﻿using ArtPortfolio.Domain.Entities;
+﻿using ArtPortfolio.Application.Common.Utility;
+using ArtPortfolio.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -60,7 +62,26 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             }
         );
 
-        // Seed data for ApplicationUser
+        // Seed data for roles
+        var artistRoleId = Guid.NewGuid().ToString();
+        var adminRoleId = Guid.NewGuid().ToString();
+        modelBuilder.Entity<IdentityRole>().HasData(
+            new IdentityRole {
+                Id = artistRoleId,
+                Name = SD.Role_Artist,
+                NormalizedName = SD.Role_Artist.ToUpper()
+            },
+            new IdentityRole {
+                Id = adminRoleId,
+                Name = SD.Role_Admin,
+                NormalizedName = SD.Role_Admin.ToUpper()
+            }
+        );
+
+        // Create PasswordHasher instance
+        var hasher = new PasswordHasher<ApplicationUser>();
+
+        // Seed data for ApplicationUser with passwords
         modelBuilder.Entity<ApplicationUser>().HasData(
             new ApplicationUser {
                 Id = "1", // Use a unique string identifier
@@ -70,7 +91,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
                 NormalizedEmail = "VINCENT.VANGOGH@EXAMPLE.COM",
                 Name = "Vincent van Gogh",
                 CreatedAt = DateTime.UtcNow,
-                ArtistId = 1
+                ArtistId = 1,
+                PasswordHash = hasher.HashPassword(null, "Password123") // Add hashed password
             },
             new ApplicationUser {
                 Id = "2", // Use a unique string identifier
@@ -80,7 +102,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
                 NormalizedEmail = "REMBRANDT@EXAMPLE.COM",
                 Name = "Rembrandt van Rijn",
                 CreatedAt = DateTime.UtcNow,
-                ArtistId = 2
+                ArtistId = 2,
+                PasswordHash = hasher.HashPassword(null, "Password123") // Add hashed password
             },
             new ApplicationUser {
                 Id = "3", // Use a unique string identifier
@@ -90,12 +113,30 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
                 NormalizedEmail = "GUSTAF.CEDERSTROM@EXAMPLE.COM",
                 Name = "Gustaf Cederström",
                 CreatedAt = DateTime.UtcNow,
-                ArtistId = 3
+                ArtistId = 3,
+                PasswordHash = hasher.HashPassword(null, "Password123") // Add hashed password
+            }
+        );
+
+        // Seed data for user-role relationships
+        modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+            new IdentityUserRole<string> {
+                UserId = "1", // Vincent van Gogh
+                RoleId = SD.Role_Artist
+            },
+            new IdentityUserRole<string> {
+                UserId = "2", // Rembrandt
+                RoleId = SD.Role_Artist
+            },
+            new IdentityUserRole<string> {
+                UserId = "3", // Gustaf Cederström
+                RoleId = SD.Role_Artist
             }
         );
 
         // Seed data for artworks
         modelBuilder.Entity<Artwork>().HasData(
+
         // Vincent van Gogh's Artworks
         new Artwork {
             Id = 1,
@@ -157,6 +198,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             ImageUrl = "/images/artwork/wheatfieldwithcrows.jpg",
             ArtistId = 1
         },
+
         // Rembrandt's Artworks
         new Artwork {
             Id = 7,
@@ -218,6 +260,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             ImageUrl = "/images/artwork/syndicsofthedrapersguild.jpg",
             ArtistId = 2
         },
+
         // Gustaf Cederström's Artworks
         new Artwork {
             Id = 13,

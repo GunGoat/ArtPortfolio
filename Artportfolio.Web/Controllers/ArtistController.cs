@@ -2,6 +2,7 @@
 using ArtPortfolio.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ArtPortfolio.Web.Controllers;
 
