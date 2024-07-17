@@ -44,19 +44,23 @@ public class ArtworkController : Controller {
 		_webHostEnvironment = webHostEnvironment;
 	}
 
-	public async Task<IActionResult> Index(int? page) {
+	public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan) {
         int pageSize = 12;
         int pageNumber = page ?? 1;
-        var artworks = _unitOfWork.Artwork.GetAll(includeProperties: "Artist")
-                                          .ToPagedList(pageNumber, pageSize);
+
+
+
+        var artworks = _unitOfWork.Artwork.GetAll(includeProperties: "Artist");
 
         var artworksVM = new ArtworksVM {
             IsLoggedIn = _signInManager.IsSignedIn(User),
             UserRoles = new List<string>(),
             UserArtistId = null,
-            Artworks = artworks,
+            Artworks = artworks.ToPagedList(pageNumber, pageSize),
             PaginationOptions = PaginationOptions
 		};
+
+
 		if (artworksVM.IsLoggedIn) {
 			var user = await _userManager.GetUserAsync(User);
 			artworksVM.UserRoles = await _userManager.GetRolesAsync(user);

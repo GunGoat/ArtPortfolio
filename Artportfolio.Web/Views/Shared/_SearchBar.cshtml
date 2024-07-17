@@ -1,0 +1,56 @@
+﻿@model string
+@{
+	string sortBy = Context.Request.Query["sortBy"].ToString() ?? "DefaultSort";
+	string timeSpan = Context.Request.Query["timeSpan"].ToString() ?? "DefaultTimeSpan";
+}
+
+<div class="input-group">
+	<button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterForm" aria-expanded="false" aria-controls="filterForm">
+		Filter
+	</button>
+	<!-- Collapsible Form -->
+	<div class="collapse" id="filterForm">
+		<div class="card card-body">
+			<form asp-controller="@Model" asp-action="Index" method="get">
+				<div class="mb-3">
+					<div class="row">
+						<div class="col"><hr></div>
+						<label for="sortBy" class="form-label col-auto">Sort By</label>
+						<div class="col"><hr></div>
+					</div>
+					<select class="form-select" id="sortBy" name="sortBy" aria-label="Default select example">
+						<option value="@SD.SortBy_Date_Descending" selected>Newest Date</option>
+						<option value="@SD.SortBy_Date_Ascending">Oldest Date</option>
+						@if (Model == "Artwork") {
+							<option value="@SD.SortBy_Price_Ascending">Lowest Price</option>
+							<option value="@SD.SortBy_Price_Descending">Highest Price</option>
+						}
+					</select>
+				</div>
+				<div class="row">
+					<div class="col"><hr></div>
+					<label for="timeSpan" class="form-label col-auto">Time Span</label>
+					<div class="col"><hr></div>
+				</div>
+				<div class="mb-3">
+					<div class="btn-group btn-group-toggle" data-toggle="buttons">
+						<input type="radio" class="btn-check" name="timeSpan" id="option1" value="AllTime" autocomplete="off" checked>
+						<label class="btn btn-secondary" for="option1">All Time</label>
+
+						<input type="radio" class="btn-check" name="timeSpan" id="option2" value="Year" autocomplete="off">
+						<label class="btn btn-secondary" for="option2">Year</label>
+
+						<input type="radio" class="btn-check" name="timeSpan" id="option3" value="Month" autocomplete="off">
+						<label class="btn btn-secondary" for="option3">Month</label>
+
+						<input type="radio" class="btn-check" name="timeSpan" id="option4" value="Week" autocomplete="off">
+						<label class="btn btn-secondary" for="option4">Week</label>
+					</div>
+				</div>
+				<button type="submit" class="btn btn-primary">Apply Filters</button>
+			</form>
+		</div>
+	</div>
+	<input type="text" class="form-control" placeholder="Search @Model">
+	<button class="btn btn-outline-secondary" type="button">Search</button>
+</div>

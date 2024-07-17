@@ -18,6 +18,7 @@ html {
 }
 
 body {
+  padding-top: 66px; /* Added to prevent static top navbar to cover the content*/
   margin-bottom: 60px;
 }
 
@@ -34,4 +35,12 @@ body {
 
 .card:hover .card-text {
     opacity: 1; /* Make it visible on hover */
+}
+
+#filterForm {
+    position: absolute;
+    top: 55px; /* Adjust this value based on the height of your navbar */
+    left: 0;
+    right: auto;
+    z-index: 1000; /* Ensure it appears above other content */
 }
