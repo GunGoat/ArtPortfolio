@@ -18,7 +18,9 @@ public static class SD {
 	public const string TimeSpan_Year = "Year";
 	public const string TimeSpan_All = "All";
 
-	public const string SortBy_Date_Ascending = "Date";
+    public const string SortBy_Title_Ascending = "Title";
+    public const string SortBy_Title_Descending = "TitleDesc";
+    public const string SortBy_Date_Ascending = "Date";
 	public const string SortBy_Date_Descending = "DateDesc";
 	public const string SortBy_Price_Ascending = "Price";
 	public const string SortBy_Price_Descending = "PriceDesc";

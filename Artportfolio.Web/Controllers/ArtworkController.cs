@@ -2,6 +2,7 @@
 using ArtPortfolio.Application.Common.Utility;
 using ArtPortfolio.Domain.Entities;
 using ArtPortfolio.Web.Models.ViewModels;
+using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -44,13 +45,48 @@ public class ArtworkController : Controller {
 		_webHostEnvironment = webHostEnvironment;
 	}
 
-	public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan) {
+	public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan, string? query) {
         int pageSize = 12;
         int pageNumber = page ?? 1;
 
 
+		// Define the initial predicate as true (no filter)
+		var predicate = PredicateBuilder.New<Artwork>(true);
 
-        var artworks = _unitOfWork.Artwork.GetAll(includeProperties: "Artist");
+        // Set the timespan
+        if (!string.IsNullOrEmpty(timeSpan)) {
+            predicate = timeSpan switch {
+                SD.TimeSpan_Year => predicate.And(artwork => artwork.CreationDate > DateTime.Now.AddDays(-365)),
+                SD.TimeSpan_Month => predicate.And(artwork => artwork.CreationDate > DateTime.Now.AddMonths(-31)),
+                SD.TimeSpan_Week => predicate.And(artwork => artwork.CreationDate > DateTime.Now.AddDays(-7)),
+                SD.TimeSpan_All => predicate.And(artwork => artwork.CreationDate <= DateTime.Now), 
+                _ => predicate // 
+            };
+        }
+
+		// search the query
+		if (!string.IsNullOrEmpty(query)) {
+			var loweredQuery = query.ToLower();
+			predicate = predicate.And(artwork => artwork.Title.ToLower().Contains(loweredQuery) ||
+												 artwork.Description.ToLower().Contains(loweredQuery) ||
+												 artwork.Artist.FirstName.ToLower().Contains(loweredQuery) ||
+												 artwork.Artist.LastName.ToLower().Contains(loweredQuery));
+		}
+
+
+        // Perform the query to database
+		var artworks = _unitOfWork.Artwork.GetAll(predicate, includeProperties: "Artist");
+
+        // Order the resulting data
+		if (!string.IsNullOrEmpty(sortBy)) {
+            artworks = sortBy switch {
+                SD.SortBy_Date_Ascending => artworks.OrderBy(artwork => artwork.CreationDate),
+                SD.SortBy_Date_Descending => artworks.OrderByDescending(artwork => artwork.CreationDate),
+                SD.SortBy_Title_Ascending => artworks.OrderBy(artwork => artwork.Title),
+                SD.SortBy_Title_Descending => artworks.OrderByDescending(artwork => artwork.Title),
+                _ => artworks
+            };
+        }
 
         var artworksVM = new ArtworksVM {
             IsLoggedIn = _signInManager.IsSignedIn(User),
@@ -59,7 +95,6 @@ public class ArtworkController : Controller {
             Artworks = artworks.ToPagedList(pageNumber, pageSize),
             PaginationOptions = PaginationOptions
 		};
-
 
 		if (artworksVM.IsLoggedIn) {
 			var user = await _userManager.GetUserAsync(User);

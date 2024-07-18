@@ -1,17 +1,40 @@
 ﻿@model string
 @{
-	string sortBy = Context.Request.Query["sortBy"].ToString() ?? "DefaultSort";
-	string timeSpan = Context.Request.Query["timeSpan"].ToString() ?? "DefaultTimeSpan";
+	var sortByOptions = new[] {
+		new { Value = SD.SortBy_Date_Ascending, DisplayText = "Ascending Date" },
+		new { Value = SD.SortBy_Date_Descending, DisplayText = "Descending Date" },
+		new { Value = SD.SortBy_Price_Ascending, DisplayText = "Ascending Price" },
+		new { Value = SD.SortBy_Date_Descending, DisplayText = "Descending Price" },
+		new { Value = SD.SortBy_Title_Ascending, DisplayText = "Ascending Title" },
+		new { Value = SD.SortBy_Title_Descending, DisplayText = "Descending Title" },
+	};
+
+	var timeSpanOptions = new[] {
+		new { Value = SD.TimeSpan_All, DisplayText = "All Time" },
+		new { Value = SD.TimeSpan_Year, DisplayText = "Year" },
+		new { Value = SD.TimeSpan_Month, DisplayText = "Month" },
+		new { Value = SD.TimeSpan_Week, DisplayText = "Week" }
+	};
+
+	string sortBy = sortByOptions.Any(o => o.Value == Context.Request.Query["sortBy"].ToString())
+					? Context.Request.Query["sortBy"].ToString()
+					: SD.SortBy_Date_Ascending;
+
+	string timeSpan = timeSpanOptions.Any(o => o.Value == Context.Request.Query["timeSpan"].ToString())
+							? Context.Request.Query["timeSpan"].ToString()
+							: SD.TimeSpan_All;
+
+	string query = Context.Request.Query["query"].ToString() ?? string.Empty;
 }
 
 <form asp-controller="@Model" asp-action="Index" method="get">
-<div class="input-group">
-	<button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterForm" aria-expanded="false" aria-controls="filterForm">
-		Filter
-	</button>
-	<!-- Collapsible Form -->
-	<div class="collapse" id="filterForm">
-		<div class="card card-body">
+	<div class="input-group">
+		<button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterForm" aria-expanded="false" aria-controls="filterForm">
+			Filter
+		</button>
+		<!-- Collapsible Form -->
+		<div class="collapse" id="filterForm">
+			<div class="card card-body">
 				<div class="mb-3">
 					<!-- SortBy -->
 					<div class="row">
@@ -20,37 +43,33 @@
 						<div class="col"><hr></div>
 					</div>
 					<select class="form-select" id="sortBy" name="sortBy" aria-label="Default select example">
-						<option value="@SD.SortBy_Date_Descending" selected>Newest Date</option>
-						<option value="@SD.SortBy_Date_Ascending">Oldest Date</option>
-						@if (Model == "Artwork") {
-							<option value="@SD.SortBy_Price_Ascending">Lowest Price</option>
-							<option value="@SD.SortBy_Price_Descending">Highest Price</option>
+						@foreach (var option in sortByOptions) {
+							if (String.Equals(sortBy, option.Value, StringComparison.OrdinalIgnoreCase)) {
+								<option value="@option.Value" selected>@option.DisplayText</option>
+							}
+							else {
+								<option value="@option.Value">@option.DisplayText</option>
+							}
 						}
 					</select>
 				</div>
-				<!-- TimeSpan-->
+				<!-- TimeSpan -->
 				<div class="row">
 					<div class="col"><hr></div>
 					<label for="timeSpan" class="form-label col-auto">Time Span</label>
 					<div class="col"><hr></div>
 				</div>
 				<div class="btn-group btn-group-toggle" data-toggle="buttons">
-					<input type="radio" class="btn-check" name="timeSpan" id="option1" value="AllTime" autocomplete="off" checked>
-					<label class="btn btn-secondary" for="option1">All Time</label>
-
-					<input type="radio" class="btn-check" name="timeSpan" id="option2" value="Year" autocomplete="off">
-					<label class="btn btn-secondary" for="option2">Year</label>
-
-					<input type="radio" class="btn-check" name="timeSpan" id="option3" value="Month" autocomplete="off">
-					<label class="btn btn-secondary" for="option3">Month</label>
-
-					<input type="radio" class="btn-check" name="timeSpan" id="option4" value="Week" autocomplete="off">
-					<label class="btn btn-secondary" for="option4">Week</label>
+					@foreach (var option in timeSpanOptions) {
+						<input type="radio" class="btn-check" name="timeSpan" id="@option.Value" value="@option.Value" autocomplete="off" @(timeSpan == option.Value ? "checked" : "")>
+						<label class="btn btn-secondary" for="@option.Value">@option.DisplayText</label>
+					}
 				</div>
+			</div>
 		</div>
-	</div>
+		<!-- Query -->
+		<input type="text" name="query" class="form-control" placeholder="Search @Model" value="@query">
 		<!-- Submit -->
-		<input type="text" name="query" class="form-control" placeholder="Search @Model">
 		<button class="btn btn-outline-secondary" type="submit">Search</button>
-</div>
+	</div>
 </form>

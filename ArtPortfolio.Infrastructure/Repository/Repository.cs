@@ -1,5 +1,6 @@
 ﻿using ArtPortfolio.Application.Common.Interfaces;
 using ArtPortfolio.Infrastructure.Data;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ public class Repository<T> : IRepository<T> where T : class {
 		IQueryable<T> query = dbSet;
 
 		if (filter is not null)
-			query = query.Where(filter);
+			query = query.AsExpandable().Where(filter);
 
 		if (!string.IsNullOrEmpty(includeProperties)) {
 			foreach (var property in ExtractProperties(includeProperties)) {
