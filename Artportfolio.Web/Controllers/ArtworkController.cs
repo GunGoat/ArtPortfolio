@@ -69,8 +69,7 @@ public class ArtworkController : Controller {
 			var loweredQuery = query.ToLower();
 			predicate = predicate.And(artwork => artwork.Title.ToLower().Contains(loweredQuery) ||
 												 artwork.Description.ToLower().Contains(loweredQuery) ||
-												 artwork.Artist.FirstName.ToLower().Contains(loweredQuery) ||
-												 artwork.Artist.LastName.ToLower().Contains(loweredQuery));
+												 artwork.Artist.FullName.ToLower().Contains(loweredQuery));
 		}
 
 
@@ -109,7 +108,7 @@ public class ArtworkController : Controller {
     public IActionResult Create() {
         var artists = _unitOfWork.Artist.GetAll().Select(artist =>
         new SelectListItem {
-            Text = $"{artist.FirstName} {artist.LastName}",
+            Text = artist.FullName,
             Value = artist.Id.ToString()
         });
         ViewBag.Artists = artists;
@@ -117,7 +116,7 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
-    [Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
+    [Authorize(Policy = SD.Policy_Artwork_Create)]
     public IActionResult Create(Artwork artwork) {
         // Removing ImageUrl from ModelState so it does not affect the validation
         ModelState.Remove("ImageUrl");
@@ -147,7 +146,7 @@ public class ArtworkController : Controller {
 
         var artists = _unitOfWork.Artist.GetAll().Select(artist =>
             new SelectListItem {
-                Text = $"{artist.FirstName} {artist.LastName}",
+                Text = artist.FullName,
                 Value = artist.Id.ToString()
             });
         ViewBag.Artists = artists;

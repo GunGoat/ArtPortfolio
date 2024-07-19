@@ -138,6 +138,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             }
         );
 
+        // Helpers to generate random price
+        var random = new Random();
+        decimal minPrice = 500m;
+        decimal maxPrice = 5000m;
+        decimal RoundToNearest(decimal value, decimal multiple) =>
+            Math.Round(value / multiple) * multiple;
+        decimal GenerateRandomPrice(decimal minPrice, decimal maxPrice) =>
+            RoundToNearest(Math.Round((decimal)(random.NextDouble() * (double)(maxPrice - minPrice) + (double)minPrice), 2), 100m);
+
         // Seed data for artworks
         modelBuilder.Entity<Artwork>().HasData(
 
@@ -149,8 +158,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1889, 6, 1),
             Medium = "Oil on canvas",
             Dimensions = "73.7 cm × 92.1 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/starrynight.jpg",
-            ArtistId = 1
+            ArtistId = 1,
         },
         new Artwork {
             Id = 2,
@@ -159,6 +169,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1888, 8, 1),
             Medium = "Oil on canvas",
             Dimensions = "95 cm × 73 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/sunflowers.jpg",
             ArtistId = 1
         },
@@ -169,6 +180,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1888, 10, 1),
             Medium = "Oil on canvas",
             Dimensions = "72 cm × 90 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/thebedroom.jpg",
             ArtistId = 1
         },
@@ -179,6 +191,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1889, 5, 1),
             Medium = "Oil on canvas",
             Dimensions = "71 cm × 93 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/irises.jpg",
             ArtistId = 1
         },
@@ -189,6 +202,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1889, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "60 cm × 49 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/selfportraitbandagedear.jpg",
             ArtistId = 1
         },
@@ -199,6 +213,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1890, 7, 1),
             Medium = "Oil on canvas",
             Dimensions = "50 cm × 103 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/wheatfieldwithcrows.jpg",
             ArtistId = 1
         },
@@ -211,6 +226,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1642, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "363 cm × 437 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/nightwatch.jpg",
             ArtistId = 2
         },
@@ -221,6 +237,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1632, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "169.5 cm × 216.5 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/anatomylesson.jpg",
             ArtistId = 2
         },
@@ -231,6 +248,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1665, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "114.3 cm × 94 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/selfportrait.jpg",
             ArtistId = 2
         },
@@ -241,6 +259,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1667, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "121.5 cm × 166.5 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/jewishbride.jpg",
             ArtistId = 2
         },
@@ -251,6 +270,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1633, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "160 cm × 128 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/stormontheseaofgalilee.jpg",
             ArtistId = 2
         },
@@ -261,6 +281,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1662, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "191.5 cm × 279 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/syndicsofthedrapersguild.jpg",
             ArtistId = 2
         },
@@ -273,6 +294,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1878, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "295 cm × 395 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/karlxii.jpg",
             ArtistId = 3
         },
@@ -283,6 +305,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1880, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "220 cm × 250 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/stensture.jpg",
             ArtistId = 3
         },
@@ -293,6 +316,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1923, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "220 cm × 144 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/stenbock.jpg",
             ArtistId = 3
         },
@@ -303,6 +327,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1910, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "295 cm × 395 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/narva.jpg",
             ArtistId = 3
         },
@@ -313,6 +338,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1918, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "98 cm × 129 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/david.jpg",
             ArtistId = 3
         },
@@ -323,6 +349,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
             CreationDate = new DateTime(1918, 1, 1),
             Medium = "Oil on canvas",
             Dimensions = "75 cm × 57.5 cm",
+            Price = GenerateRandomPrice(minPrice, maxPrice),
             ImageUrl = "/images/artwork/waitingcarolean.jpg",
             ArtistId = 3
         }

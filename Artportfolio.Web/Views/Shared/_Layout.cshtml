@@ -38,7 +38,12 @@
 						</li>
 						@if (controller is "Artwork" or "Artist") {
 							<li class="nav-item ps-3">
-								<partial name="_SearchBar" model="@controller"/>
+								@await Component.InvokeAsync(nameof(ArtPortfolio.Web.Components.SearchBarComponent), new {
+										controllerName = ViewContext.RouteData.Values["controller"].ToString(),
+										sortBy = Context.Request.Query["sortBy"].ToString(),
+										timeSpan = Context.Request.Query["timeSpan"].ToString(),
+										query = Context.Request.Query["query"].ToString()
+									})
 							</li>
 						}
 					</ul>

@@ -22,6 +22,10 @@ public class Artwork {
 	public string Description { get; set; }
 
 	[Required]
+	[Range(0, 1000000)]  
+	public decimal Price { get; set; }
+
+	[Required]
 	public DateTime CreationDate { get; set; }
 
 	[MaxLength(100)]

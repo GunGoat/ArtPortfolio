@@ -17,6 +17,10 @@ public class Artist {
 	[MaxLength(50)]
 	public string LastName { get; set; }
 
+
+	[NotMapped]
+	public string FullName => $"{FirstName} {LastName}";
+
 	[MaxLength(1000)]
 	public string Biography { get; set; }
 

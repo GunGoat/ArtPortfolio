@@ -1,0 +1,48 @@
+﻿@model SearchBarVM
+
+<form asp-controller="@Model.ControllerName" asp-action="Index" method="get">
+	<div class="input-group">
+		<button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterForm" aria-expanded="false" aria-controls="filterForm">
+			Filter
+		</button>
+		<!-- Collapsible Form -->
+		<div class="collapse" id="filterForm">
+			<div class="card card-body">
+				<div class="mb-3">
+					<!-- SortBy -->
+					<div class="row">
+						<div class="col"><hr></div>
+						<label for="sortBy" class="form-label col-auto">Sort By</label>
+						<div class="col"><hr></div>
+					</div>
+					<select class="form-select" id="sortBy" name="sortBy" aria-label="Default select example">
+						@foreach (var option in Model.SortByOptions) {
+							if (option.IsSelected) {
+								<option value="@option.Value" selected>@option.DisplayText</option>
+							}
+							else {
+								<option value="@option.Value">@option.DisplayText</option>
+							}
+						}
+					</select>
+				</div>
+				<!-- TimeSpan -->
+				<div class="row">
+					<div class="col"><hr></div>
+					<label for="timeSpan" class="form-label col-auto">Time Span</label>
+					<div class="col"><hr></div>
+				</div>
+				<div class="btn-group btn-group-toggle" data-toggle="buttons">
+					@foreach (var option in Model.TimeSpanOptions) {
+						<input type="radio" class="btn-check" name="timeSpan" id="@option.Value" value="@option.Value" autocomplete="off" @(option.IsSelected ? "checked" : "")>
+						<label class="btn btn-secondary" for="@option.Value">@option.DisplayText</label>
+					}
+				</div>
+			</div>
+		</div>
+		<!-- Query -->
+		<input type="text" name="query" class="form-control" placeholder="Search @Model.ControllerName" value="@Model.Query">
+		<!-- Submit -->
+		<button class="btn btn-outline-secondary" type="submit">Search</button>
+	</div>
+</form>

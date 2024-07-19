@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ArtPortfolio.Web.Controllers;
 
-
-
 public class AccountController : Controller {
     private readonly IUnitOfWork _unitOfWork;
     private readonly UserManager<ApplicationUser> _userManager;
