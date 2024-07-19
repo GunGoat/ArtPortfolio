@@ -3,6 +3,8 @@ using ArtPortfolio.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
+using ArtPortfolio.Application.Common.Utility;
+using LinqKit;
 
 namespace ArtPortfolio.Web.Controllers;
 
@@ -16,8 +18,31 @@ public class ArtistController : Controller {
         _webHostEnvironment = webHostEnvironment;
     }
 
-    public IActionResult Index() {
-        var artists = _unitOfWork.Artist.GetAll(includeProperties: "Artworks");
+    public IActionResult Index(int? page, string? sortBy, string? timeSpan, string? query) {
+        // Define the initial predicate as true (no filter)
+        var predicate = PredicateBuilder.New<Artist>(true);
+
+        // search the query
+        if (!string.IsNullOrEmpty(query)) {
+            var loweredQuery = query.ToLower();
+            predicate = predicate.And(artist => artist.Biography.ToLower().Contains(loweredQuery) ||
+                                                artist.FullName.ToLower().Contains(loweredQuery));
+        }
+
+        // Perform the query to database
+        var artists = _unitOfWork.Artist.GetAll(predicate, includeProperties: "Artworks");
+
+        // Order the resulting data
+        if (!string.IsNullOrEmpty(sortBy)) {
+            artists = sortBy switch {
+                SD.SortBy_Date_Ascending => artists.OrderBy(artist => artist.DateOfBirth),
+                SD.SortBy_Date_Descending => artists.OrderByDescending(artist => artist.DateOfBirth),
+                SD.SortBy_Name_Ascending => artists.OrderBy(artist => artist.FullName),
+                SD.SortBy_Name_Descending => artists.OrderByDescending(artist => artist.FullName),
+                _ => artists
+            };
+        }
+
         return View(artists);
     }
 

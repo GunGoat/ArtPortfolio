@@ -23,9 +23,9 @@ namespace ArtPortfolio.Web.Controllers {
 		}
 
 		public IActionResult Index() {
-			if (_signInManager.IsSignedIn(User) is false) {
-				return RedirectToAction("Index", "Artwork");
-			}
+			//if (_signInManager.IsSignedIn(User) is false) {
+			//	return RedirectToAction("Index", "Artwork");
+			//}
             return View();
 		}
 

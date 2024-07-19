@@ -20,10 +20,11 @@
 			</div>
 			<div class="col-12 col-md-3" style="max-height: 70vh; overflow-y: auto;">
 				<p>@Model.Artwork.Description</p>
+				<p><strong>Price:</strong> @Model.Artwork.Price skr</p>
 				<p><strong>Creation Date:</strong> @Model.Artwork.CreationDate.ToString("MMMM dd, yyyy")</p>
 				<p><strong>Medium:</strong> @Model.Artwork.Medium</p>
 				<p><strong>Dimensions:</strong> @Model.Artwork.Dimensions</p>
-				<p><strong>Artist:</strong> @($"{Model.Artwork.Artist.FirstName} {Model.Artwork.Artist.LastName}")</p>
+				<p><strong>Artist:</strong> @Model.Artwork.Artist.FullName</p>
 				<!-- Add other details as needed -->
 			</div>
 		</div>

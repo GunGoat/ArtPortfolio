@@ -49,8 +49,7 @@ public class ArtworkController : Controller {
         int pageSize = 12;
         int pageNumber = page ?? 1;
 
-
-		// Define the initial predicate as true (no filter)
+        // Define the initial predicate as true (no filter)
 		var predicate = PredicateBuilder.New<Artwork>(true);
 
         // Set the timespan
@@ -59,8 +58,7 @@ public class ArtworkController : Controller {
                 SD.TimeSpan_Year => predicate.And(artwork => artwork.CreationDate > DateTime.Now.AddDays(-365)),
                 SD.TimeSpan_Month => predicate.And(artwork => artwork.CreationDate > DateTime.Now.AddMonths(-31)),
                 SD.TimeSpan_Week => predicate.And(artwork => artwork.CreationDate > DateTime.Now.AddDays(-7)),
-                SD.TimeSpan_All => predicate.And(artwork => artwork.CreationDate <= DateTime.Now), 
-                _ => predicate // 
+                _ => predicate 
             };
         }
 
@@ -68,10 +66,8 @@ public class ArtworkController : Controller {
 		if (!string.IsNullOrEmpty(query)) {
 			var loweredQuery = query.ToLower();
 			predicate = predicate.And(artwork => artwork.Title.ToLower().Contains(loweredQuery) ||
-												 artwork.Description.ToLower().Contains(loweredQuery) ||
-												 artwork.Artist.FullName.ToLower().Contains(loweredQuery));
+												 artwork.Description.ToLower().Contains(loweredQuery));
 		}
-
 
         // Perform the query to database
 		var artworks = _unitOfWork.Artwork.GetAll(predicate, includeProperties: "Artist");
@@ -83,6 +79,8 @@ public class ArtworkController : Controller {
                 SD.SortBy_Date_Descending => artworks.OrderByDescending(artwork => artwork.CreationDate),
                 SD.SortBy_Title_Ascending => artworks.OrderBy(artwork => artwork.Title),
                 SD.SortBy_Title_Descending => artworks.OrderByDescending(artwork => artwork.Title),
+                SD.SortBy_Price_Ascending => artworks.OrderBy(artwork => artwork.Price),
+                SD.SortBy_Price_Descending => artworks.OrderByDescending(artwork => artwork.Price),
                 _ => artworks
             };
         }
@@ -116,11 +114,11 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
-    [Authorize(Policy = SD.Policy_Artwork_Create)]
+    // [Authorize(Policy = SD.Policy_Artwork_Create)]
     public IActionResult Create(Artwork artwork) {
         // Removing ImageUrl from ModelState so it does not affect the validation
         ModelState.Remove("ImageUrl");
-        if (ModelState.IsValid) {
+        if (ModelState.IsValid && artwork.Image is not null) {
             if (artwork.Image is not null) {
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(artwork.Image.FileName)}";
                 var filePath = Path.Combine(_webHostEnvironment.WebRootPath, artworkImagesPath);
@@ -154,7 +152,7 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
-    [Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
+    // [Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
     public IActionResult Update(Artwork artwork) {
         if (ModelState.IsValid) {
             if (artwork.Image is not null) {
@@ -187,7 +185,7 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
-    [Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
+    //[Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
     public IActionResult Delete(Artwork artwork) {
         int id = artwork.Id;
         Artwork? artworkFromDb = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");

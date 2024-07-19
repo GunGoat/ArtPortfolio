@@ -22,7 +22,8 @@ public class Artwork {
 	public string Description { get; set; }
 
 	[Required]
-	[Range(0, 1000000)]  
+	[Range(0, 1000000)]
+	[Column(TypeName = "decimal(18,2)")]
 	public decimal Price { get; set; }
 
 	[Required]

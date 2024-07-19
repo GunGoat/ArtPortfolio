@@ -42,7 +42,7 @@ public class Repository<T> : IRepository<T> where T : class {
 		IQueryable<T> query = dbSet;
 
 		if (filter is not null)
-			query = query.AsExpandable().Where(filter);
+			query = query.Where(filter);
 
 		if (!string.IsNullOrEmpty(includeProperties)) {
 			foreach (var property in ExtractProperties(includeProperties)) {
@@ -51,7 +51,6 @@ public class Repository<T> : IRepository<T> where T : class {
 		}
 
 		return query.FirstOrDefault();
-		//return query.ToList();
 	}
 
 	public IEnumerable<T> GetAll(

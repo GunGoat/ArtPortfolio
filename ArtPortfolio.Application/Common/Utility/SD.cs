@@ -24,4 +24,7 @@ public static class SD {
 	public const string SortBy_Date_Descending = "DateDesc";
 	public const string SortBy_Price_Ascending = "Price";
 	public const string SortBy_Price_Descending = "PriceDesc";
+	public const string SortBy_Name_Ascending = "Name";
+	public const string SortBy_Name_Descending = "NameDesc";
+
 }
