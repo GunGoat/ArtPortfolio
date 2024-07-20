@@ -2,13 +2,13 @@
 using ArtPortfolio.Application.Common.Utility;
 using ArtPortfolio.Domain.Entities;
 using ArtPortfolio.Web.Models.ViewModels;
-using LinqKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System.Linq.Expressions;
 using X.PagedList;
 using X.PagedList.Mvc.Core;
 
@@ -46,33 +46,8 @@ public class ArtworkController : Controller {
 	}
 
 	public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan, string? query) {
-        int pageSize = 12;
-        int pageNumber = page ?? 1;
-
-        // Define the initial predicate as true (no filter)
-		var predicate = PredicateBuilder.New<Artwork>(true);
-
-        // Set the timespan
-        if (!string.IsNullOrEmpty(timeSpan)) {
-            predicate = timeSpan switch {
-                SD.TimeSpan_Year => predicate.And(artwork => artwork.CreationDate > DateTime.Now.AddDays(-365)),
-                SD.TimeSpan_Month => predicate.And(artwork => artwork.CreationDate > DateTime.Now.AddMonths(-31)),
-                SD.TimeSpan_Week => predicate.And(artwork => artwork.CreationDate > DateTime.Now.AddDays(-7)),
-                _ => predicate 
-            };
-        }
-
-		// search the query
-		if (!string.IsNullOrEmpty(query)) {
-			var loweredQuery = query.ToLower();
-			predicate = predicate.And(artwork => artwork.Title.ToLower().Contains(loweredQuery) ||
-												 artwork.Description.ToLower().Contains(loweredQuery));
-		}
-
-        // Perform the query to database
-		var artworks = _unitOfWork.Artwork.GetAll(predicate, includeProperties: "Artist");
-
-        // Order the resulting data
+        var filter = Filter(timeSpan, query);
+        var artworks = _unitOfWork.Artwork.GetAll(filter, includeProperties: "Artist");
 		if (!string.IsNullOrEmpty(sortBy)) {
             artworks = sortBy switch {
                 SD.SortBy_Date_Ascending => artworks.OrderBy(artwork => artwork.CreationDate),
@@ -85,6 +60,8 @@ public class ArtworkController : Controller {
             };
         }
 
+        int pageSize = 12;
+        int pageNumber = page ?? 1;
         var artworksVM = new ArtworksVM {
             IsLoggedIn = _signInManager.IsSignedIn(User),
             UserRoles = new List<string>(),
@@ -102,21 +79,49 @@ public class ArtworkController : Controller {
         return View(artworksVM);
 	}
 
+
+    // FILTER ARTWORK
+    private Expression<Func<Artwork, bool>>? Filter(string? timeSpan, string? query) {
+        var predicate = PredicateBuilder.True<Artwork>();
+
+        if (!string.IsNullOrEmpty(query)) {
+            var queryNormalized = query.ToLower();
+            predicate = predicate.And(artwork => artwork.Title.ToLower().Contains(queryNormalized) ||
+                                                 artwork.Description.ToLower().Contains(queryNormalized) ||
+                                                 artwork.Artist.FirstName.ToLower().Contains(queryNormalized) ||
+                                                 artwork.Artist.FirstName.ToLower().Contains(queryNormalized));
+        }
+
+        if (!string.IsNullOrEmpty(timeSpan)) {
+            DateTime? dateTime = timeSpan.ToLower() switch {
+                var ts when ts == SD.TimeSpan_Year.ToLower() => DateTime.Now.AddYears(-1),
+                var ts when ts == SD.TimeSpan_Month.ToLower() => DateTime.Now.AddMonths(-1),
+                var ts when ts == SD.TimeSpan_Week.ToLower() => DateTime.Now.AddDays(-7),
+                _ => null
+            };
+            if (dateTime.HasValue) {
+                predicate = predicate.And(artist => artist.CreationDate >= dateTime.Value);
+            }
+        }
+
+        return predicate;
+    }
+
+
+    // CREATE ARTWORK
     [Authorize(Roles = SD.Role_Artist)]
     public IActionResult Create() {
         var artists = _unitOfWork.Artist.GetAll().Select(artist =>
-        new SelectListItem {
-            Text = artist.FullName,
-            Value = artist.Id.ToString()
-        });
+            new SelectListItem {
+                Text = artist.FullName,
+                Value = artist.Id.ToString()
+            });
         ViewBag.Artists = artists;
         return View();
     }
 
     [HttpPost]
-    // [Authorize(Policy = SD.Policy_Artwork_Create)]
     public IActionResult Create(Artwork artwork) {
-        // Removing ImageUrl from ModelState so it does not affect the validation
         ModelState.Remove("ImageUrl");
         if (ModelState.IsValid && artwork.Image is not null) {
             if (artwork.Image is not null) {
@@ -136,6 +141,8 @@ public class ArtworkController : Controller {
         return View();
     }
 
+
+    // UPDATE ARTWORK
     public IActionResult Update(int id) {
 		var artwork = _unitOfWork.Artwork.Get(artwork => artwork.Id == id);
         if (artwork is null) {
@@ -152,7 +159,6 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
-    // [Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
     public IActionResult Update(Artwork artwork) {
         if (ModelState.IsValid) {
             if (artwork.Image is not null) {
@@ -176,6 +182,8 @@ public class ArtworkController : Controller {
         return View();
     }
 
+
+    // DELETE ARTWORK
     public IActionResult Delete(int id) {
         Artwork? artworkFromDb = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");
         if (artworkFromDb is null) {
@@ -185,7 +193,6 @@ public class ArtworkController : Controller {
     }
 
     [HttpPost]
-    //[Authorize(Policy = SD.Policy_Artwork_Update_Delete)]
     public IActionResult Delete(Artwork artwork) {
         int id = artwork.Id;
         Artwork? artworkFromDb = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");

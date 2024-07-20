@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
 using ArtPortfolio.Application.Common.Utility;
-using LinqKit;
+using System.Linq.Expressions;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ArtPortfolio.Web.Controllers;
 
@@ -19,20 +20,8 @@ public class ArtistController : Controller {
     }
 
     public IActionResult Index(int? page, string? sortBy, string? timeSpan, string? query) {
-        // Define the initial predicate as true (no filter)
-        var predicate = PredicateBuilder.New<Artist>(true);
-
-        // search the query
-        if (!string.IsNullOrEmpty(query)) {
-            var loweredQuery = query.ToLower();
-            predicate = predicate.And(artist => artist.Biography.ToLower().Contains(loweredQuery) ||
-                                                artist.FullName.ToLower().Contains(loweredQuery));
-        }
-
-        // Perform the query to database
-        var artists = _unitOfWork.Artist.GetAll(predicate, includeProperties: "Artworks");
-
-        // Order the resulting data
+        var filter = Filter(timeSpan: timeSpan, query: query);
+        var artists = _unitOfWork.Artist.GetAll(filter, includeProperties: "Artworks");
         if (!string.IsNullOrEmpty(sortBy)) {
             artists = sortBy switch {
                 SD.SortBy_Date_Ascending => artists.OrderBy(artist => artist.DateOfBirth),
@@ -46,6 +35,36 @@ public class ArtistController : Controller {
         return View(artists);
     }
 
+    
+    // FILTER ARTIST
+    private Expression<Func<Artist, bool>>? Filter(string? timeSpan, string? query) {
+        var predicate = PredicateBuilder.True<Artist>();
+
+        if (!string.IsNullOrEmpty(query)) {
+            var queryNormalized = query.ToLower();
+            predicate = predicate.And(artist => artist.FirstName == queryNormalized ||
+                                                artist.LastName == queryNormalized);
+        }
+
+        // This does not really makes sense, since we cant expect the artist to be one year olds or younger
+        // Probably should modify this attribute in the form or adding creation date for the artist account...
+        if(!string.IsNullOrEmpty(timeSpan)) {
+            DateTime? dateTime = timeSpan.ToLower() switch {
+                var ts when ts == SD.TimeSpan_Year.ToLower() => DateTime.Now.AddYears(-1),
+                var ts when ts == SD.TimeSpan_Month.ToLower() => DateTime.Now.AddMonths(-1),
+                var ts when ts == SD.TimeSpan_Week.ToLower() => DateTime.Now.AddDays(-7),
+                _ => null
+            };
+            if (dateTime.HasValue) {
+                predicate = predicate.And(artist => artist.DateOfBirth >= dateTime.Value);
+            }
+        }
+
+        return predicate;
+    }
+
+
+    // CREATE ARTIST
     public IActionResult Create() {
         return View();
     }
@@ -71,6 +90,8 @@ public class ArtistController : Controller {
         return View();
     }
 
+
+    // UPDATE ARTIST
     public IActionResult Update(int id) {
         var artist = _unitOfWork.Artist.Get(artist => artist.Id == id);
         if (artist is null) {
@@ -104,6 +125,8 @@ public class ArtistController : Controller {
         return View();
     }
 
+
+    // DELETE ARTIST
     public IActionResult Delete(int id) {
         Artist? artistFromDb = _unitOfWork.Artist.Get(artist => artist.Id == id);
         if (artistFromDb is null) {

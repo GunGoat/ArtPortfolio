@@ -1,6 +1,5 @@
 ﻿using ArtPortfolio.Application.Common.Interfaces;
 using ArtPortfolio.Infrastructure.Data;
-using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
