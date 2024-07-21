@@ -45,7 +45,8 @@ public class ArtworkController : Controller {
 		_webHostEnvironment = webHostEnvironment;
 	}
 
-	public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan, string? query) {
+    #region ACTION METHODS
+    public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan, string? query) {
         var filter = Filter(timeSpan, query);
         var artworks = _unitOfWork.Artwork.GetAll(filter, includeProperties: "Artist");
 		if (!string.IsNullOrEmpty(sortBy)) {
@@ -56,7 +57,7 @@ public class ArtworkController : Controller {
                 SD.SortBy_Title_Descending => artworks.OrderByDescending(artwork => artwork.Title),
                 SD.SortBy_Price_Ascending => artworks.OrderBy(artwork => artwork.Price),
                 SD.SortBy_Price_Descending => artworks.OrderByDescending(artwork => artwork.Price),
-                _ => artworks
+                _ => artworks.OrderBy(artwork => artwork.CreationDate)
             };
         }
 
@@ -80,34 +81,6 @@ public class ArtworkController : Controller {
 	}
 
 
-    // FILTER ARTWORK
-    private Expression<Func<Artwork, bool>>? Filter(string? timeSpan, string? query) {
-        var predicate = PredicateBuilder.True<Artwork>();
-
-        if (!string.IsNullOrEmpty(query)) {
-            var queryNormalized = query.ToLower();
-            predicate = predicate.And(artwork => artwork.Title.ToLower().Contains(queryNormalized) ||
-                                                 artwork.Description.ToLower().Contains(queryNormalized) ||
-                                                 artwork.Artist.FirstName.ToLower().Contains(queryNormalized) ||
-                                                 artwork.Artist.FirstName.ToLower().Contains(queryNormalized));
-        }
-
-        if (!string.IsNullOrEmpty(timeSpan)) {
-            DateTime? dateTime = timeSpan.ToLower() switch {
-                var ts when ts == SD.TimeSpan_Year.ToLower() => DateTime.Now.AddYears(-1),
-                var ts when ts == SD.TimeSpan_Month.ToLower() => DateTime.Now.AddMonths(-1),
-                var ts when ts == SD.TimeSpan_Week.ToLower() => DateTime.Now.AddDays(-7),
-                _ => null
-            };
-            if (dateTime.HasValue) {
-                predicate = predicate.And(artist => artist.CreationDate >= dateTime.Value);
-            }
-        }
-
-        return predicate;
-    }
-
-
     // CREATE ARTWORK
     [Authorize(Roles = SD.Role_Artist)]
     public IActionResult Create() {
@@ -123,15 +96,8 @@ public class ArtworkController : Controller {
     [HttpPost]
     public IActionResult Create(Artwork artwork) {
         ModelState.Remove("ImageUrl");
-        if (ModelState.IsValid && artwork.Image is not null) {
-            if (artwork.Image is not null) {
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(artwork.Image.FileName)}";
-                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, artworkImagesPath);
-                using var fileStream = new FileStream(Path.Combine(filePath, fileName), FileMode.Create);
-                artwork.Image.CopyTo(fileStream);
-                artwork.ImageUrl = $@"\{artworkImagesPath}\{fileName}";
-            }
-
+        if (ModelState.IsValid && artwork.Image is not null && string.IsNullOrEmpty(artwork.ImageUrl)) {
+            SaveArtworkImage(artwork);
             _unitOfWork.Artwork.Add(artwork);
             _unitOfWork.Artwork.Save();
             TempData["success"] = "The artwork has been created successfully.";
@@ -161,18 +127,7 @@ public class ArtworkController : Controller {
     [HttpPost]
     public IActionResult Update(Artwork artwork) {
         if (ModelState.IsValid) {
-            if (artwork.Image is not null) {
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(artwork.Image.FileName)}";
-                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, artworkImagesPath);
-                var oldImage = Path.Combine(_webHostEnvironment.WebRootPath, artwork.ImageUrl.TrimStart('\\'));
-                if (System.IO.File.Exists(oldImage)) {
-                    System.IO.File.Delete(oldImage);
-                }
-                using var fileStream = new FileStream(Path.Combine(filePath, fileName), FileMode.Create);
-                artwork.Image.CopyTo(fileStream);
-                artwork.ImageUrl = $@"\{artworkImagesPath}\{fileName}";
-            }
-
+            SaveArtworkImage(artwork);
             _unitOfWork.Artwork.Update(artwork);
             _unitOfWork.Artwork.Save();
             TempData["success"] = "The artwork has been updated successfully.";
@@ -197,13 +152,7 @@ public class ArtworkController : Controller {
         int id = artwork.Id;
         Artwork? artworkFromDb = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");
         if (artworkFromDb is not null) {
-            if (!string.IsNullOrEmpty(artworkFromDb.ImageUrl)) {
-                var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, artworkFromDb.ImageUrl.TrimStart('\\'));
-                if (System.IO.File.Exists(oldImagePath)) {
-                    System.IO.File.Delete(oldImagePath);
-                }
-            }
-
+            DeleteArtworkImage(artworkFromDb);
             _unitOfWork.Artwork.Remove(artworkFromDb);
             _unitOfWork.Artwork.Save();
             TempData["success"] = "The artwork has been deleted successfully.";
@@ -212,4 +161,73 @@ public class ArtworkController : Controller {
         TempData["error"] = "The artwork could not be deleted.";
         return View();
     }
+    #endregion
+
+    #region PRIVATE METHODS
+    /// <summary>
+    /// Constructs a filter expression for artworks based on the provided time span and query.
+    /// </summary>
+    /// <param name="timeSpan">The time span filter (e.g., "year", "month", "week").</param>
+    /// <param name="query">The search query for artwork titles, descriptions, or artist name.</param>
+    /// <returns>
+    /// A lambda expression representing the filter criteria for artworks,
+    /// or null if no filter criteria are specified.
+    /// </returns>
+    private Expression<Func<Artwork, bool>>? Filter(string? timeSpan, string? query) {
+        var predicate = PredicateBuilder.True<Artwork>();
+
+        if (!string.IsNullOrEmpty(query)) {
+            var queryNormalized = query.ToLower();
+            predicate = predicate.And(artwork => artwork.Title.ToLower().Contains(queryNormalized) ||
+                                                 artwork.Description.ToLower().Contains(queryNormalized) ||
+                                                 artwork.Artist.FirstName.ToLower().Contains(queryNormalized) ||
+                                                 artwork.Artist.FirstName.ToLower().Contains(queryNormalized));
+        }
+
+        if (!string.IsNullOrEmpty(timeSpan)) {
+            DateTime? dateTime = timeSpan.ToLower() switch {
+                var ts when ts == SD.TimeSpan_Year.ToLower() => DateTime.Now.AddYears(-1),
+                var ts when ts == SD.TimeSpan_Month.ToLower() => DateTime.Now.AddMonths(-1),
+                var ts when ts == SD.TimeSpan_Week.ToLower() => DateTime.Now.AddDays(-7),
+                _ => null
+            };
+            if (dateTime.HasValue) {
+                predicate = predicate.And(artist => artist.CreationDate >= dateTime.Value);
+            }
+        }
+
+        return predicate;
+    }
+
+    /// <summary>
+    /// Deletes the image file associated with the given artwork from the server.
+    /// </summary>
+    /// <param name="artwork">The artwork whose image file is to be deleted.</param>
+    private void DeleteArtworkImage(Artwork artwork) {
+        if (!string.IsNullOrEmpty(artwork.ImageUrl)) {
+            var oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, artwork.ImageUrl.TrimStart('\\'));
+            if (System.IO.File.Exists(oldImagePath)) {
+                System.IO.File.Delete(oldImagePath);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Saves the image file associated with the given artwork to the server.
+    /// Deletes the old image file if present.
+    /// </summary>
+    /// <param name="artwork">The artwork whose image file is to be saved.</param>
+    private void SaveArtworkImage(Artwork artwork) {
+        if (artwork.Image is not null) {
+            // Remove old image if present
+            DeleteArtworkImage(artwork);
+            // Upload new image
+            var newImageName = $"{Guid.NewGuid()}{Path.GetExtension(artwork.Image.FileName)}";
+            var newImagePath = Path.Combine(_webHostEnvironment.WebRootPath, artworkImagesPath);
+            using var fileStream = new FileStream(Path.Combine(newImagePath, newImageName), FileMode.Create);
+            artwork.Image.CopyTo(fileStream);
+            artwork.ImageUrl = $@"\{artworkImagesPath}\{newImageName}";
+        }
+    }
+    #endregion
 }
