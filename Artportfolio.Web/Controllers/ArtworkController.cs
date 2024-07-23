@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Linq.Expressions;
 using X.PagedList;
@@ -61,7 +62,7 @@ public class ArtworkController : Controller {
             };
         }
 
-        int pageSize = 12;
+        int pageSize = 24;
         int pageNumber = page ?? 1;
         var artworksVM = new ArtworksVM {
             IsLoggedIn = _signInManager.IsSignedIn(User),
@@ -80,6 +81,22 @@ public class ArtworkController : Controller {
         return View(artworksVM);
 	}
 
+    public async Task<IActionResult> GetArtworkDetails(int id) {
+        var user = await _userManager.GetUserAsync(User);
+        var artwork = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");
+        if (artwork == null) {
+            return NotFound();
+        }
+
+        var model = new ArtworkDetailVM {
+            Artwork = artwork,
+            IsAdmin = User.IsInRole(SD.Role_Admin),
+            IsArtist = User.IsInRole(SD.Role_Artist),
+            ArtistId = user?.ArtistId 
+        };
+
+        return PartialView("_ArtworkDetail", model);
+    }
 
     // CREATE ARTWORK
     [Authorize(Roles = SD.Role_Artist)]

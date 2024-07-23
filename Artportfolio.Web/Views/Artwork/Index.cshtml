@@ -2,8 +2,8 @@
 
 <div class="row" data-masonry='{"percentPosition": true }'>
     @foreach (var artwork in Model.Artworks) {
-        <div class="col-12 col-md-6 col-lg-3 mb-4">
-            <div class="card position-relative" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#artworkDetailsModal-@(artwork.Id)">
+        <div class="col-12 col-md-6 col-lg-3 mb-4 testing">
+            <div class="card position-relative artwork-card" style="cursor: pointer;" data-artwork-id="@artwork.Id">
                 <img src="@artwork.ImageUrl" class="card-img-top" alt="...">
                 <div class="card-img-overlay d-flex align-items-end">
                     <div class="bg-black-overlay w-100 text-white">
@@ -15,24 +15,41 @@
     }
 </div>
 
-@foreach(var artwork in Model.Artworks) {
-    <!-- Modal -->
-    <div class="modal fade" id="artworkDetailsModal-@(artwork.Id)" tabindex="-1" aria-labelledby="artworkDetailsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-body">
-                <partial name="_ArtworkDetail" model="new ArtworkDetailVM { 
-                    Artwork = artwork, 
-                    IsAdmin = Model.UserRoles.Contains(SD.Role_Admin),
-                    IsArtist = Model.UserRoles.Contains(SD.Role_Artist),
-                    ArtistId = Model.UserArtistId}" />
-            </div>
+<!-- Placeholder for the modal -->
+<div class="modal fade" id="artworkDetailsModal" tabindex="-1" aria-labelledby="artworkDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+
         </div>
     </div>
-}
-
+</div>
 
 <div class="col-md-12">
     <div class="d-flex justify-content-center mb-4">
         @Html.PagedListPager(Model.Artworks, page => Url.Action("Index", new { page }), Model.PaginationOptions)
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.artwork-card').on('click', function () {
+                var artworkId = $(this).data('artwork-id');
+                $('#artworkDetailsModal .modal-content').html(''); // Clear previous content
+
+                $.ajax({
+                    url: '@Url.Action("GetArtworkDetails", "Artwork")', // Replace with your controller and action
+                    type: 'GET',
+                    data: { id: artworkId },
+                    success: function (response) {
+                        $('#artworkDetailsModal .modal-content').html(response);
+                        $('#artworkDetailsModal').modal('show');
+                    },
+                    error: function () {
+                        alert('An error occurred while loading the artwork details.');
+                    }
+                });
+            });
+        });
+    </script>
+}
