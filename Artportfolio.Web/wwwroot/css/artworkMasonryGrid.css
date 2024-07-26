@@ -1,0 +1,133 @@
+﻿/* Define the fade-in and flow-up animation */
+@keyframes flowUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Apply the fade-in and flow-up animation to grid items */
+.grid-item {
+    padding: .5em; /* Space between items */
+    opacity: 0; /* Start with hidden items */
+    animation: flowUp 0.5s ease-in forwards; /* Add flow-up animation */
+    overflow: hidden; /* Ensure content doesn't overflow */
+    position: relative;
+}
+
+/* New container for image to handle zoom */
+.grid-item .img-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Hide overflow of the image */
+}
+
+.grid-item img {
+    width: 100%; /* Make images responsive */
+    height: 100%;
+    display: block;
+    transition: transform 0.3s ease-in-out; /* Smooth transition for zoom-in */
+}
+
+/* Apply the zoom-in effect on hover */
+.grid-item:hover img {
+    transform: scale(1.05); /* Apply zoom-in transform on hover */
+}
+
+/* Grid item text */
+.title {
+    font-size: 1.4rem;
+    line-height: 1.6rem;
+    padding: 0px 1rem 0.5rem 0px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.text {
+    font-size: 1.2rem;
+    line-height: 1.5rem;
+    text-transform: uppercase;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgb(145, 145, 145);
+}
+
+    .text.highlight {
+        color: rgb(0, 145, 255);
+        text-decoration: none;
+        overflow: hidden;
+    }
+
+        .text.highlight:hover {
+            text-overflow: ellipsis;
+            text-decoration: underline;
+        }
+
+.overlay-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+
+/* Grid layout */
+.grid-sizer {
+    width: 100%; /* Full width of the container by default */
+}
+
+/* Mobile-first: 1 column */
+@media (min-width: 0px) {
+    .grid-sizer, .grid-item {
+        width: 100%; /* Single column */
+    }
+}
+
+/* Tablets: 2 columns */
+@media (min-width: 768px) {
+    .grid-sizer, .grid-item {
+        width: 50%; /* Two columns */
+    }
+}
+
+/* Desktops: 3 columns */
+@media (min-width: 1080px) {
+    .grid-sizer, .grid-item {
+        width: 33.33%; /* Three columns */
+    }
+}
+
+/* Large desktops: 4 columns */
+@media (min-width: 1440px) {
+    .grid-sizer, .grid-item {
+        width: 25%; /* Four columns */
+    }
+}
+
+.grid-item-overlay {
+    position: absolute;
+    bottom: 0.5em;
+    left: 0.5em;
+    right: 0.5em;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 0.5em 0.5em 0.5em;
+    opacity: 1; /* Always visible on mobile and tablet size */
+    transition: opacity 0.3s ease;
+    color: white;
+    font-family: "open sans", sans-serif;
+}
+
+@media (min-width: 1080px) {
+    .grid-item-overlay {
+        opacity: 0; /* Visible when hovering on PC size */
+    }
+
+    .grid-item:hover .grid-item-overlay {
+        opacity: 1; /* Make it visible on hover */
+    }
+}

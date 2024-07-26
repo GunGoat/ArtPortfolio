@@ -22,21 +22,6 @@ body {
   margin-bottom: 60px;
 }
 
-.card-text {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 8px;
-    opacity: 0; /* Ensure it starts as invisible */
-    transition: opacity 0.3s ease;
-}
-
-.card:hover .card-text {
-    opacity: 1; /* Make it visible on hover */
-}
-
 #filterForm {
     position: absolute;
     top: 55px; /* Adjust this value based on the height of your navbar */

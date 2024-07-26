@@ -1,32 +1,30 @@
 ﻿@model ArtworkDetailVM
 
-<div class="modal-content">
-	<div class="modal-header">
-		<h5 class="modal-title">@Model.Artwork.Title</h5>
-		<div class="btn-group">
-			@if (Model.IsAdmin || Model.IsArtist && Model.ArtistId == Model.Artwork.ArtistId) {
-				<a asp-action="Update" asp-controller="Artwork" asp-route-id="@Model.Artwork.Id" class="btn btn-success">Edit</a>
-				<a asp-action="Delete" asp-controller="Artwork" asp-route-id="@Model.Artwork.Id" class="btn btn-danger">Delete</a>
-			}
-			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-		</div>
+<div class="modal-header">
+	<h5 class="modal-title">@Model.Artwork.Title</h5>
+	<div class="btn-group">
+		@if (Model.IsAdmin || Model.IsArtist && Model.ArtistId == Model.Artwork.ArtistId) {
+			<a asp-action="Update" asp-controller="Artwork" asp-route-id="@Model.Artwork.Id" class="btn btn-success">Edit</a>
+			<a asp-action="Delete" asp-controller="Artwork" asp-route-id="@Model.Artwork.Id" class="btn btn-danger">Delete</a>
+		}
+		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 	</div>
-	<div class="modal-body">
-		<div class="row">
-			<div class="col-12 col-md-9" style="max-height: 70vh; overflow-y: auto;">
-				<div class="text-center mb-4">
-					<img src="@Model.Artwork.ImageUrl" class="img-fluid" alt="@Model.Artwork.Title">
-				</div>
+</div>
+<div class="modal-body">
+	<div class="row">
+		<div class="col-12 col-md-9" style="max-height: 70vh; overflow-y: auto;">
+			<div class="text-center mb-4">
+				<img src="@Model.Artwork.ImageUrl" class="img-fluid" alt="@Model.Artwork.Title">
 			</div>
-			<div class="col-12 col-md-3" style="max-height: 70vh; overflow-y: auto;">
-				<p>@Model.Artwork.Description</p>
-				<p><strong>Price:</strong> @Model.Artwork.Price skr</p>
-				<p><strong>Creation Date:</strong> @Model.Artwork.CreationDate.ToString("MMMM dd, yyyy")</p>
-				<p><strong>Medium:</strong> @Model.Artwork.Medium</p>
-				<p><strong>Dimensions:</strong> @Model.Artwork.Dimensions</p>
-				<p><strong>Artist:</strong> @Model.Artwork.Artist.FullName</p>
-				<!-- Add other details as needed -->
-			</div>
+		</div>
+		<div class="col-12 col-md-3" style="max-height: 70vh; overflow-y: auto;">
+			<p>@Model.Artwork.Description</p>
+			<p><strong>Price:</strong> @Model.Artwork.Price SEK</p>
+			<p><strong>Creation Date:</strong> @Model.Artwork.CreationDate.ToString("MMMM dd, yyyy")</p>
+			<p><strong>Medium:</strong> @Model.Artwork.Medium</p>
+			<p><strong>Dimensions:</strong> @Model.Artwork.Dimensions</p>
+			<p><strong>Artist:</strong> @Model.Artwork.Artist.FullName</p>
+			<!-- Add other details as needed -->
 		</div>
 	</div>
 </div>

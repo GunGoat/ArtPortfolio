@@ -1,21 +1,28 @@
 ﻿@model ArtworksVM
 
-<div class="row" data-masonry='{"percentPosition": true }'>
+<div class="grid">
+    <div class="grid-sizer"></div>
     @foreach (var artwork in Model.Artworks) {
-        <div class="col-12 col-md-6 col-lg-3 mb-4 testing">
-            <div class="card position-relative artwork-card" style="cursor: pointer;" data-artwork-id="@artwork.Id">
-                <img src="@artwork.ImageUrl" class="card-img-top" alt="...">
-                <div class="card-img-overlay d-flex align-items-end">
-                    <div class="bg-black-overlay w-100 text-white">
-                        <p class="card-text mt-auto">@artwork.Title</p>
-                    </div>
+        <div class="grid-item visible" style="cursor: pointer;" data-artwork-id="@artwork.Id">
+            <div class="img-container">
+                <img src="@artwork.ImageUrl" alt="@artwork.Title"/>
+            </div>
+            <div class="grid-item-overlay">
+                <div class="overlay-row">
+                    <div class="title" title="@artwork.Title">@artwork.Title</div>
+                    <div class="text">@artwork.Price kr</div>
+                </div>
+                <div class="overlay-row">
+                    <a class="text highlight" href="">@artwork.Artist.FullName</a>
+                    <div class="text">@artwork.CreationDate.ToString("MMMM dd, yyyy")</div>
                 </div>
             </div>
         </div>
     }
 </div>
 
-<!-- Placeholder for the modal -->
+
+@*  Placeholder for the modal *@
 <div class="modal fade" id="artworkDetailsModal" tabindex="-1" aria-labelledby="artworkDetailsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
@@ -24,6 +31,7 @@
     </div>
 </div>
 
+
 <div class="col-md-12">
     <div class="d-flex justify-content-center mb-4">
         @Html.PagedListPager(Model.Artworks, page => Url.Action("Index", new { page }), Model.PaginationOptions)
@@ -31,24 +39,24 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/artworkMasonryGrid.js"></script>
     <script>
-        $(document).ready(function () {
-            $('.artwork-card').on('click', function () {
-                var artworkId = $(this).data('artwork-id');
-                $('#artworkDetailsModal .modal-content').html(''); // Clear previous content
+        // Event delegation for grid item click
+        $('.grid').on('click', '.grid-item', function () {
+            var artworkId = $(this).data('artwork-id');
+            $('#artworkDetailsModal .modal-content').html(''); // Clear previous content
 
-                $.ajax({
-                    url: '@Url.Action("GetArtworkDetails", "Artwork")', // Replace with your controller and action
-                    type: 'GET',
-                    data: { id: artworkId },
-                    success: function (response) {
-                        $('#artworkDetailsModal .modal-content').html(response);
-                        $('#artworkDetailsModal').modal('show');
-                    },
-                    error: function () {
-                        alert('An error occurred while loading the artwork details.');
-                    }
-                });
+            $.ajax({
+                url: '@Url.Action("GetArtworkDetails", "Artwork")', // Replace with your controller and action
+                type: 'GET',
+                data: { id: artworkId },
+                success: function (response) {
+                    $('#artworkDetailsModal .modal-content').html(response);
+                    $('#artworkDetailsModal').modal('show');
+                },
+                error: function () {
+                    alert('An error occurred while loading the artwork details.');
+                }
             });
         });
     </script>

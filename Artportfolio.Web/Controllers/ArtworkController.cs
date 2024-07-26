@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System;
 using System.Linq.Expressions;
 using X.PagedList;
 using X.PagedList.Mvc.Core;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ArtPortfolio.Web.Controllers;
 
@@ -22,6 +24,7 @@ public class ArtworkController : Controller {
 	private readonly UserManager<ApplicationUser> _userManager;
 	private readonly SignInManager<ApplicationUser> _signInManager;
 	private const string artworkImagesPath = @"images\artwork";
+    private const int pageSize = 12;
     private static readonly PagedListRenderOptions PaginationOptions = new PagedListRenderOptions {
         DisplayLinkToFirstPage = PagedListDisplayMode.Always,
         DisplayLinkToLastPage = PagedListDisplayMode.Always,
@@ -62,7 +65,6 @@ public class ArtworkController : Controller {
             };
         }
 
-        int pageSize = 24;
         int pageNumber = page ?? 1;
         var artworksVM = new ArtworksVM {
             IsLoggedIn = _signInManager.IsSignedIn(User),
@@ -98,7 +100,26 @@ public class ArtworkController : Controller {
         return PartialView("_ArtworkDetail", model);
     }
 
-    // CREATE ARTWORK
+    public IActionResult LoadMoreArtworks(int page) {
+        var filter = Filter(null, null); // TODO: save timeSpan and query as session variables or maybe a cache
+        var artworks = _unitOfWork.Artwork.GetAll(includeProperties: "Artist")
+            .Skip(page * pageSize)
+            .Take(pageSize);
+
+        var result = artworks.Select(artwork => new
+        {
+            id = artwork.Id,
+            imageUrl = artwork.ImageUrl,
+            artistFullName = artwork.Artist.FullName,
+            title = artwork.Title,
+            creationDate = artwork.CreationDate,
+            price = artwork.Price
+        }).ToList(); // Materialize the selection
+
+        return Json(result);
+    }
+
+        // CREATE ARTWORK
     [Authorize(Roles = SD.Role_Artist)]
     public IActionResult Create() {
         var artists = _unitOfWork.Artist.GetAll().Select(artist =>
