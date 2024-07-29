@@ -7,13 +7,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using System;
 using System.Linq.Expressions;
-using X.PagedList;
-using X.PagedList.Mvc.Core;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ArtPortfolio.Web.Controllers;
 
@@ -24,20 +21,7 @@ public class ArtworkController : Controller {
 	private readonly UserManager<ApplicationUser> _userManager;
 	private readonly SignInManager<ApplicationUser> _signInManager;
 	private const string artworkImagesPath = @"images\artwork";
-    private const int pageSize = 12;
-    private static readonly PagedListRenderOptions PaginationOptions = new PagedListRenderOptions {
-        DisplayLinkToFirstPage = PagedListDisplayMode.Always,
-        DisplayLinkToLastPage = PagedListDisplayMode.Always,
-        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-        DisplayLinkToNextPage = PagedListDisplayMode.Always,
-        DisplayLinkToIndividualPages = true,
-        DisplayPageCountAndCurrentLocation = false,
-        MaximumPageNumbersToDisplay = 5,
-        UlElementClasses = new[] { "pagination" },
-        LiElementClasses = Enumerable.Empty<string>().ToList(),
-        PageClasses = new[] { "page-link" },
-        FunctionToDisplayEachPageNumber = (pageNumber => pageNumber.ToString())
-    };
+	private const int pageSize = 12;
 
     public ArtworkController(IUnitOfWork unitOfWork, 
                              UserManager<ApplicationUser> userManager, 
@@ -49,37 +33,13 @@ public class ArtworkController : Controller {
 		_webHostEnvironment = webHostEnvironment;
 	}
 
-    #region ACTION METHODS
-    public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan, string? query) {
-        var filter = Filter(timeSpan, query);
-        var artworks = _unitOfWork.Artwork.GetAll(filter, includeProperties: "Artist");
-		if (!string.IsNullOrEmpty(sortBy)) {
-            artworks = sortBy switch {
-                SD.SortBy_Date_Ascending => artworks.OrderBy(artwork => artwork.CreationDate),
-                SD.SortBy_Date_Descending => artworks.OrderByDescending(artwork => artwork.CreationDate),
-                SD.SortBy_Title_Ascending => artworks.OrderBy(artwork => artwork.Title),
-                SD.SortBy_Title_Descending => artworks.OrderByDescending(artwork => artwork.Title),
-                SD.SortBy_Price_Ascending => artworks.OrderBy(artwork => artwork.Price),
-                SD.SortBy_Price_Descending => artworks.OrderByDescending(artwork => artwork.Price),
-                _ => artworks.OrderBy(artwork => artwork.CreationDate)
-            };
-        }
-
-        int pageNumber = page ?? 1;
-        var artworksVM = new ArtworksVM {
-            IsLoggedIn = _signInManager.IsSignedIn(User),
-            UserRoles = new List<string>(),
-            UserArtistId = null,
-            Artworks = artworks.ToPagedList(pageNumber, pageSize),
-            PaginationOptions = PaginationOptions
-		};
-
-		if (artworksVM.IsLoggedIn) {
-			var user = await _userManager.GetUserAsync(User);
-			artworksVM.UserRoles = await _userManager.GetRolesAsync(user);
-			artworksVM.UserArtistId = user.ArtistId;
-		}
-
+	#region ACTION METHODS
+	public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan, string? searchQuery) {
+        ArtworksVM artworksVM = new ArtworksVM {
+            SortBy = sortBy ?? "",
+            TimeSpan = timeSpan ?? "",
+            SearchQuery = searchQuery ?? ""
+        };
         return View(artworksVM);
 	}
 
@@ -100,9 +60,10 @@ public class ArtworkController : Controller {
         return PartialView("_ArtworkDetail", model);
     }
 
-    public IActionResult LoadMoreArtworks(int page) {
-        var filter = Filter(null, null); // TODO: save timeSpan and query as session variables or maybe a cache
-        var artworks = _unitOfWork.Artwork.GetAll(includeProperties: "Artist")
+    public IActionResult LoadMoreArtworks(int page, string? sortBy, string? timeSpan, string? searchQuery) {
+        var filter = Filter(timeSpan: timeSpan, searchQuery: searchQuery);
+        var artworks = _unitOfWork.Artwork.GetAll(filter, includeProperties: "Artist");
+        artworks = SortArtworks(artworks, sortBy)
             .Skip(page * pageSize)
             .Take(pageSize);
 
@@ -119,8 +80,8 @@ public class ArtworkController : Controller {
         return Json(result);
     }
 
-        // CREATE ARTWORK
-    [Authorize(Roles = SD.Role_Artist)]
+	// CREATE ARTWORK
+	[Authorize(Roles = SD.Role_Artist)]
     public IActionResult Create() {
         var artists = _unitOfWork.Artist.GetAll().Select(artist =>
             new SelectListItem {
@@ -203,19 +164,50 @@ public class ArtworkController : Controller {
 
     #region PRIVATE METHODS
     /// <summary>
+    /// Sorts a collection of artworks based on the specified sorting criteria.
+    /// </summary>
+    /// <param name="artworks">The collection of artworks to be sorted.</param>
+    /// <param name="sortBy">
+    /// The sorting criteria, which can be one of the following values:
+    /// <list type="bullet">
+    /// <item><description>SD.SortBy_Date_Ascending</description></item>
+    /// <item><description>SD.SortBy_Date_Descending</description></item>
+    /// <item><description>SD.SortBy_Title_Ascending</description></item>
+    /// <item><description>SD.SortBy_Title_Descending</description></item>
+    /// <item><description>SD.SortBy_Price_Ascending</description></item>
+    /// <item><description>SD.SortBy_Price_Descending</description></item>
+    /// </list>
+    /// If an invalid value is provided, the artworks will be sorted by creation date in ascending order by default.
+    /// </param>
+    /// <returns>
+    /// A sorted collection of artworks based on the specified criteria.
+    /// </returns>
+    public IEnumerable<Artwork> SortArtworks(IEnumerable<Artwork> artworks, string sortBy) {
+        return sortBy switch {
+            SD.SortBy_Date_Ascending => artworks.OrderBy(artwork => artwork.CreationDate),
+            SD.SortBy_Date_Descending => artworks.OrderByDescending(artwork => artwork.CreationDate),
+            SD.SortBy_Title_Ascending => artworks.OrderBy(artwork => artwork.Title),
+            SD.SortBy_Title_Descending => artworks.OrderByDescending(artwork => artwork.Title),
+            SD.SortBy_Price_Ascending => artworks.OrderBy(artwork => artwork.Price),
+            SD.SortBy_Price_Descending => artworks.OrderByDescending(artwork => artwork.Price),
+            _ => artworks.OrderBy(artwork => artwork.CreationDate)
+        };
+    }
+
+    /// <summary>
     /// Constructs a filter expression for artworks based on the provided time span and query.
     /// </summary>
     /// <param name="timeSpan">The time span filter (e.g., "year", "month", "week").</param>
-    /// <param name="query">The search query for artwork titles, descriptions, or artist name.</param>
+    /// <param name="searchQuery">The search query for artwork titles, descriptions, or artist name.</param>
     /// <returns>
     /// A lambda expression representing the filter criteria for artworks,
     /// or null if no filter criteria are specified.
     /// </returns>
-    private Expression<Func<Artwork, bool>>? Filter(string? timeSpan, string? query) {
+    private Expression<Func<Artwork, bool>>? Filter(string? timeSpan, string? searchQuery) {
         var predicate = PredicateBuilder.True<Artwork>();
 
-        if (!string.IsNullOrEmpty(query)) {
-            var queryNormalized = query.ToLower();
+        if (!string.IsNullOrEmpty(searchQuery)) {
+            var queryNormalized = searchQuery.ToLower();
             predicate = predicate.And(artwork => artwork.Title.ToLower().Contains(queryNormalized) ||
                                                  artwork.Description.ToLower().Contains(queryNormalized) ||
                                                  artwork.Artist.FirstName.ToLower().Contains(queryNormalized) ||

@@ -46,6 +46,14 @@ builder.Services.ConfigureApplicationCookie(option => {
     option.LoginPath = "/Account/Login";
 });
 
+// Add session services
+builder.Services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
+builder.Services.AddSession(options => {
+	options.IdleTimeout = TimeSpan.FromMinutes(30);
+	options.Cookie.HttpOnly = true;
+	options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -58,8 +66,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-// Adds authorization middleware to the request pipeline.
+app.UseAuthentication(); // Add authentication middleware
 app.UseAuthorization();
+app.UseSession(); // Add session middleware
 
 // Maps controller routes with a default route.
 app.MapControllerRoute(

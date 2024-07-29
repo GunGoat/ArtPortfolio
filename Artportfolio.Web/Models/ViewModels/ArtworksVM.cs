@@ -3,13 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using X.PagedList;
 using X.PagedList.Mvc.Core;
 
-namespace ArtPortfolio.Web.Models.ViewModels {
-	public class ArtworksVM {
-		public bool IsLoggedIn { get; set; }
-		public IList<string> UserRoles { get; set; }
-		public int? UserArtistId { get; set; }
+namespace ArtPortfolio.Web.Models.ViewModels;
 
-		public IPagedList<Artwork> Artworks { get; set; }
-		public PagedListRenderOptions PaginationOptions { get; set; }
-	}
+public class ArtworksVM {
+	public string SortBy { get; set; }
+	public string TimeSpan { get; set; }
+	public string SearchQuery { get; set; }
 }

@@ -1,5 +1,9 @@
 ﻿$(document).ready(function () {
-    var currentPage = 1;
+    var filterOptions = $('#filterOptions');
+    var sortBy = filterOptions.data('sort-by');
+    var timeSpan = filterOptions.data('timespan');
+    var searchQuery = filterOptions.data('search-query');
+    var currentPage = 0;
     var loading = false;
 
     // Define the grid items
@@ -15,9 +19,11 @@
         $grid.masonry('layout');
     });
 
+
+
     // Function to load more items
     function loadMoreItems(page) {
-        $.get('/Artwork/LoadMoreArtworks', { page: page }, function (data) {
+        $.get('/Artwork/LoadMoreArtworks', { page: page, sortBy: sortBy, timeSpan: timeSpan, searchQuery: searchQuery }, function (data) {
             if (data.length === 0) {
                 // No more items to load
                 return;
@@ -50,13 +56,17 @@
                     loading = false; // Set loading to false after layout is done
                 });
 
-            // Increase page number for next load
-            currentPage++;
+        // Increase page number for next load
+        currentPage++;
         }).fail(function () {
             loading = false; // Ensure loading is reset if the request fails
         });
     }
 
+
+
+    // Initial call 
+    loadMoreItems(currentPage);
     // Call loadMoreItems when scrolling near the bottom of the page
     $(window).scroll(function () {
         if (loading) {

@@ -7,7 +7,7 @@ namespace ArtPortfolio.Web.Components;
 public record FilterOption(string Value, string DisplayText, bool IsSelected);
 
 public class SearchBarComponent : ViewComponent {
-	public IViewComponentResult Invoke(string controllerName, string sortBy, string timeSpan, string query) {
+	public IViewComponentResult Invoke(string controllerName, string sortBy, string timeSpan, string searchQuery) {
 
 		// Helper function for case-insensitive comparison
 		bool IsSelected(string str1, string str2) =>
@@ -53,7 +53,7 @@ public class SearchBarComponent : ViewComponent {
 			ControllerName = controllerName,
 			SortByOptions = sortByOptions.ToArray(),
 			TimeSpanOptions = timeSpanOptions,
-			Query = query ?? string.Empty,
+			SearchQuery = searchQuery ?? string.Empty,
 		};
 
 		return View(model);
