@@ -20,24 +20,24 @@
     position: relative;
 }
 
-/* New container for image to handle zoom */
-.grid-item .img-container {
-    width: 100%;
-    height: 100%;
-    overflow: hidden; /* Hide overflow of the image */
-}
+    /* New container for image to handle zoom */
+    .grid-item .img-container {
+        width: 100%;
+        height: 100%;
+        overflow: hidden; /* Hide overflow of the image */
+    }
 
-.grid-item img {
-    width: 100%; /* Make images responsive */
-    height: 100%;
-    display: block;
-    transition: transform 0.3s ease-in-out; /* Smooth transition for zoom-in */
-}
+    .grid-item img {
+        width: 100%; /* Make images responsive */
+        height: 100%;
+        display: block;
+        transition: transform 0.3s ease-in-out; /* Smooth transition for zoom-in */
+    }
 
-/* Apply the zoom-in effect on hover */
-.grid-item:hover img {
-    transform: scale(1.05); /* Apply zoom-in transform on hover */
-}
+    /* Apply the zoom-in effect on hover */
+    .grid-item:hover img {
+        transform: scale(1.05); /* Apply zoom-in transform on hover */
+    }
 
 /* Grid item text */
 .title {

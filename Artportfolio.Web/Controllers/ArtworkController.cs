@@ -61,6 +61,7 @@ public class ArtworkController : Controller {
     }
 
     public IActionResult LoadMoreArtworks(int page, string? sortBy, string? timeSpan, string? searchQuery) {
+        page--;
         var filter = Filter(timeSpan: timeSpan, searchQuery: searchQuery);
         var artworks = _unitOfWork.Artwork.GetAll(filter, includeProperties: "Artist");
         artworks = SortArtworks(artworks, sortBy)

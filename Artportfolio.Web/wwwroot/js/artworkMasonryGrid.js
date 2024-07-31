@@ -1,81 +1,93 @@
-﻿$(document).ready(function () {
-    var filterOptions = $('#filterOptions');
-    var sortBy = filterOptions.data('sort-by');
-    var timeSpan = filterOptions.data('timespan');
-    var searchQuery = filterOptions.data('search-query');
-    var currentPage = 0;
-    var loading = false;
+﻿var filterOptions = $('#filterOptions');
+var sortBy = filterOptions.data('sort-by');
+var timeSpan = filterOptions.data('timespan');
+var searchQuery = filterOptions.data('search-query');
 
-    // Define the grid items
-    var $grid = $('.grid').masonry({
-        itemSelector: '.grid-item',
-        columnWidth: '.grid-sizer',
-        percentPosition: true,
-        transitionDuration: 0 // Disable default animation
-    });
+// Initialize Masonry grid
+var $grid = $('.grid').masonry({
+    itemSelector: '.grid-item',       // Class selector for grid items
+    columnWidth: '.grid-sizer',       // Class selector for column width
+    percentPosition: true,            // Use percentage-based widths
+    transitionDuration: 0             // Disable default animation
+});
 
-    // Load items when the images have finished loading
-    $grid.imagesLoaded().progress(function () {
-        $grid.masonry('layout');
-    });
+// Retrieve Masonry instance
+var msnry = $grid.data('masonry');
 
+// Flag to prevent multiple simultaneous requests
+var isLoading = false;
 
+// Initialize Infinite Scroll
+$grid.infiniteScroll({
+    path: function () {
+        isLoading = true; // Set flag to true when starting to load
+        return `/Artwork/LoadMoreArtworks?page=${this.pageIndex}&sortBy=${encodeURIComponent(sortBy)}&timeSpan=${encodeURIComponent(timeSpan)}&searchQuery=${encodeURIComponent(searchQuery)}`;
+    },
+    responseBody: 'json',             // Expect JSON response
+    outlayer: msnry,                  // Use Masonry for layout
+    status: '.page-load-status',      // Element for status updates
+    history: false,                   // Disable history for the url
+    loadOnScroll: false               // Disable automatic loading on scroll
+});
 
-    // Function to load more items
-    function loadMoreItems(page) {
-        $.get('/Artwork/LoadMoreArtworks', { page: page, sortBy: sortBy, timeSpan: timeSpan, searchQuery: searchQuery }, function (data) {
-            if (data.length === 0) {
-                // No more items to load
-                return;
-            }
+// Function to manually load the next page
+function loadNextPage() {
+    if (isLoading) return; // Prevent if already loading
+    $grid.infiniteScroll('loadNextPage');
+}
 
-            // Create HTML for new items
-            var $items = $(data.map(function (item) {
-                return `<div class="grid-item visible" style="cursor: pointer;" data-artwork-id="${item.id}">
-                            <div class="img-container">
-                                <img src="${item.imageUrl}" alt="${item.title}"/>
-                            </div>
-                            <div class="grid-item-overlay">
-                                <div class="overlay-row">
-                                    <div class="title" title="${item.title}">${item.title}</div>
-                                    <div class="text">${item.price} kr</div>
-                                </div>
-                                <div class="overlay-row">
-                                    <a class="text highlight" href="#">${item.artistFullName}</a>
-                                    <div class="text">${new Date(item.creationDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
-                                </div>
-                            </div>
-                        </div>`;
-            }).join(''));
-
-            // Append new items to the grid and re-layout Masonry
-            $grid.append($items)
-                .masonry('appended', $items)
-                .imagesLoaded(function () {
-                    $grid.masonry('layout');
-                    loading = false; // Set loading to false after layout is done
-                });
-
-        // Increase page number for next load
-        currentPage++;
-        }).fail(function () {
-            loading = false; // Ensure loading is reset if the request fails
-        });
+// Function to check if user is near the bottom of the page
+function checkScroll() {
+    var scrollThreshold = 300; // Distance from bottom to trigger load
+    if ($(window).scrollTop() + $(window).height() > $(document).height() - scrollThreshold) {
+        loadNextPage();
     }
+}
 
+// Attach scroll event listener to window
+$(window).on('scroll', checkScroll);
 
+// Event listener for when new items are loaded
+$grid.on('load.infiniteScroll', function (event, body) {
+    let itemsHTML = body.map(getItemHTML).join(''); // Generate HTML for new items
+    let $items = $(itemsHTML); // Convert HTML to jQuery object
 
-    // Initial call 
-    loadMoreItems(currentPage);
-    // Call loadMoreItems when scrolling near the bottom of the page
-    $(window).scroll(function () {
-        if (loading) {
-            return; // Exit if already loading
-        }
-
-        if ($(window).scrollTop() >= $(document).height() - $(window).height() - 10) {
-            loading = true; // Set loading to true before starting request
-            loadMoreItems(currentPage);
-        }
+    // Wait for images to load before appending to grid
+    $items.imagesLoaded(function () {
+        $grid.append($items).masonry('appended', $items).masonry('layout');
+        isLoading = false; // Reset flag after loading is complete
     });
 });
+
+// Event listener for click on grid items
+$grid.on('click', '.grid-item', function () {
+    var artworkid = $(this).data('artwork-id'); // retrieve artwork id
+    $('#artworkdetailsmodal .modal-content').html(''); // clear previous content
+    $.get('/artwork/getartworkdetails', { id: artworkid }, function (response) {
+        $('#artworkdetailsmodal .modal-content').html(response);
+        $('#artworkdetailsmodal').modal('show');
+    });
+});
+
+
+// Load initial page of items
+$grid.infiniteScroll('loadNextPage');
+
+// Function to generate HTML for a grid item
+function getItemHTML({ title, imageUrl, price, creationDate }) {
+    return `<div class="grid-item visible" style="cursor: pointer;" data-artwork-id="${imageUrl}">
+                <div class="img-container">
+                    <img src="${imageUrl}" alt="${title}"/>
+                </div>
+                <div class="grid-item-overlay">
+                    <div class="overlay-row">
+                        <div class="title" title="${title}">${title}</div>
+                        <div class="text">${price} kr</div>
+                    </div>
+                    <div class="overlay-row">
+                        <a class="text highlight" href="#">Artist Name</a>
+                        <div class="text">${new Date(creationDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                    </div>
+                </div>
+            </div>`;
+}

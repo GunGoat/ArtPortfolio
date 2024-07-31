@@ -25,24 +25,4 @@
 
 @section Scripts {
     <script src="~/js/artworkMasonryGrid.js"></script>
-    <script>
-        // Event delegation for grid item click
-        $('.grid').on('click', '.grid-item', function () {
-            var artworkId = $(this).data('artwork-id');
-            $('#artworkDetailsModal .modal-content').html(''); // Clear previous content
-
-            $.ajax({
-                url: '@Url.Action("GetArtworkDetails", "Artwork")', // Replace with your controller and action
-                type: 'GET',
-                data: { id: artworkId },
-                success: function (response) {
-                    $('#artworkDetailsModal .modal-content').html(response);
-                    $('#artworkDetailsModal').modal('show');
-                },
-                error: function () {
-                    alert('An error occurred while loading the artwork details.');
-                }
-            });
-        });
-    </script>
 }
