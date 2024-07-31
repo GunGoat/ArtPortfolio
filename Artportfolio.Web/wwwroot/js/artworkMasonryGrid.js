@@ -62,20 +62,21 @@ $grid.on('load.infiniteScroll', function (event, body) {
 // Event listener for click on grid items
 $grid.on('click', '.grid-item', function () {
     var artworkid = $(this).data('artwork-id'); // retrieve artwork id
-    $('#artworkdetailsmodal .modal-content').html(''); // clear previous content
+    $('#artworkDetailsModal .modal-content').html(''); // Clear previous content
     $.get('/artwork/getartworkdetails', { id: artworkid }, function (response) {
-        $('#artworkdetailsmodal .modal-content').html(response);
-        $('#artworkdetailsmodal').modal('show');
+        $('#artworkDetailsModal .modal-content').html(response);
+        $('#artworkDetailsModal').modal('show');
+    }).fail(function () {
+        console.error('Failed to fetch artwork details.'); // Debug: Check if request fails
     });
 });
-
 
 // Load initial page of items
 $grid.infiniteScroll('loadNextPage');
 
 // Function to generate HTML for a grid item
-function getItemHTML({ title, imageUrl, price, creationDate }) {
-    return `<div class="grid-item visible" style="cursor: pointer;" data-artwork-id="${imageUrl}">
+function getItemHTML({ id, title, artistFullName, imageUrl, price, creationDate }) {
+    return `<div class="grid-item visible" style="cursor: pointer;" data-artwork-id="${id}">
                 <div class="img-container">
                     <img src="${imageUrl}" alt="${title}"/>
                 </div>
@@ -85,8 +86,8 @@ function getItemHTML({ title, imageUrl, price, creationDate }) {
                         <div class="text">${price} kr</div>
                     </div>
                     <div class="overlay-row">
-                        <a class="text highlight" href="#">Artist Name</a>
-                        <div class="text">${new Date(creationDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                        <a class="text highlight" href="#">${artistFullName}</a>
+                        <div class="text">${creationDate}</div>
                     </div>
                 </div>
             </div>`;

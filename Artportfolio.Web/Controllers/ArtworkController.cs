@@ -74,7 +74,7 @@ public class ArtworkController : Controller {
             imageUrl = artwork.ImageUrl,
             artistFullName = artwork.Artist.FullName,
             title = artwork.Title,
-            creationDate = artwork.CreationDate,
+            creationDate = artwork.CreationDate.ToString("MMMM dd, yyyy"),
             price = artwork.Price
         }).ToList(); // Materialize the selection
 
