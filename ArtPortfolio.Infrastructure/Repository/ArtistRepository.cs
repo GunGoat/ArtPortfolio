@@ -7,16 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArtPortfolio.Infrastructure.Repository {
-	public class ArtistRepository : Repository<Artist>, IArtistRepository {
-		private readonly ApplicationDbContext _db;
+namespace ArtPortfolio.Infrastructure.Repository;
 
-		public ArtistRepository(ApplicationDbContext db) : base(db) {
-			_db = db;
-		}
+public class ArtistRepository : Repository<Artist>, IArtistRepository {
+	private readonly ApplicationDbContext _db;
 
-		public void Update(Artist entity) {
-			_db.Artists.Update(entity);
-		}
+	public ArtistRepository(ApplicationDbContext db) : base(db) {
+		_db = db;
+	}
+
+	public void Update(Artist entity) {
+		_db.Artists.Update(entity);
 	}
 }
