@@ -6,34 +6,40 @@ using Microsoft.AspNetCore.Authorization;
 using ArtPortfolio.Application.Common.Utility;
 using System.Linq.Expressions;
 using Microsoft.IdentityModel.Tokens;
+using ArtPortfolio.Web.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace ArtPortfolio.Web.Controllers;
 
 public class ArtistController : Controller {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWebHostEnvironment _webHostEnvironment;
-    private const string artistImagesPath = @"images\artist";
+	private readonly UserManager<ApplicationUser> _userManager;
+	private readonly SignInManager<ApplicationUser> _signInManager;
+	private const string artistImagesPath = @"images\artist";
 
-    public ArtistController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment) {
+    public ArtistController(IUnitOfWork unitOfWork,
+							 UserManager<ApplicationUser> userManager,
+							 SignInManager<ApplicationUser> signInManager,
+							 IWebHostEnvironment webHostEnvironment) {
         _unitOfWork = unitOfWork;
-        _webHostEnvironment = webHostEnvironment;
+		_userManager = userManager;
+		_signInManager = signInManager;
+		_webHostEnvironment = webHostEnvironment;
     }
 
-    #region ACTION METHODS
-    public IActionResult Index(int? page, string? sortBy, string? timeSpan, string? query) {
-        var filter = Filter(timeSpan: timeSpan, query: query);
+	#region ACTION METHODS
+	public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan, string? searchQuery) {
+        var filter = Filter(timeSpan: timeSpan, searchQuery: searchQuery);
         var artists = _unitOfWork.Artist.GetAll(filter, includeProperties: "Artworks");
-        if (!string.IsNullOrEmpty(sortBy)) {
-            artists = sortBy switch {
-                SD.SortBy_Date_Ascending => artists.OrderBy(artist => artist.DateOfBirth),
-                SD.SortBy_Date_Descending => artists.OrderByDescending(artist => artist.DateOfBirth),
-                SD.SortBy_Name_Ascending => artists.OrderBy(artist => artist.FullName),
-                SD.SortBy_Name_Descending => artists.OrderByDescending(artist => artist.FullName),
-                _ => artists
-            };
-        }
-
-        return View(artists);
+        artists = SortArtists(artists, sortBy);
+		var user = await _userManager.GetUserAsync(User);
+		var artistsVM = new ArtistsVM {
+            Artists = artists,
+			IsAdmin = User.IsInRole(SD.Role_Admin),
+			ArtistId = user?.ArtistId,
+		};
+		return View(artistsVM);
     }
 
 
@@ -108,6 +114,33 @@ public class ArtistController : Controller {
 
     #region PRIVATE METHODS
     /// <summary>
+    /// Sorts a collection of artists based on the specified sorting criteria.
+    /// </summary>
+    /// <param name="artists">The collection of artists to be sorted.</param>
+    /// <param name="sortBy">
+    /// The sorting criteria, which can be one of the following values:
+    /// <list type="bullet">
+    /// <item><description>SD.SortBy_Date_Ascending</description></item>
+    /// <item><description>SD.SortBy_Date_Descending</description></item>
+    /// <item><description>SD.SortBy_Name_Ascending</description></item>
+    /// <item><description>SD.SortBy_Name_Descending</description></item>
+    /// </list>
+    /// If an invalid value is provided, the artists will be sorted by date of birth in ascending order by default.
+    /// </param>
+    /// <returns>
+    /// A sorted collection of artists based on the specified criteria.
+    /// </returns>
+    private IEnumerable<Artist> SortArtists(IEnumerable<Artist> artists, string sortBy) {
+        return sortBy switch {
+            SD.SortBy_Date_Ascending => artists.OrderBy(artist => artist.DateOfBirth),
+            SD.SortBy_Date_Descending => artists.OrderByDescending(artist => artist.DateOfBirth),
+            SD.SortBy_Name_Ascending => artists.OrderBy(artist => artist.FullName),
+            SD.SortBy_Name_Descending => artists.OrderByDescending(artist => artist.FullName),
+            _ => artists.OrderBy(artist => artist.DateOfBirth)
+        };
+    }
+
+    /// <summary>
     /// Constructs a filter expression for artists based on the provided time span and query.
     /// </summary>
     /// <param name="timeSpan">The time span filter (e.g., "year", "month", "week").</param>
@@ -116,13 +149,14 @@ public class ArtistController : Controller {
     /// A lambda expression representing the filter criteria for artists,
     /// or null if no filter criteria are specified.
     /// </returns>
-    private Expression<Func<Artist, bool>>? Filter(string? timeSpan, string? query) {
+    private Expression<Func<Artist, bool>>? Filter(string? timeSpan, string? searchQuery) {
         var predicate = PredicateBuilder.True<Artist>();
 
-        if (!string.IsNullOrEmpty(query)) {
-            var queryNormalized = query.ToLower();
-            predicate = predicate.And(artist => artist.FirstName.ToLower() == queryNormalized ||
-                                                artist.LastName.ToLower() == queryNormalized);
+        if (!string.IsNullOrEmpty(searchQuery)) {
+            var queryNormalized = searchQuery.ToLower();
+            predicate = predicate.And(artist => artist.FirstName.ToLower().Contains(queryNormalized) ||
+                                                artist.LastName.ToLower().Contains(queryNormalized) ||
+                                                artist.Biography.ToLower().Contains(queryNormalized));
         }
 
         // This does not really make sense, since we can't expect the artist to be one year old or younger

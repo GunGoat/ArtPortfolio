@@ -1,54 +1,117 @@
-﻿@model IEnumerable<Artist>
+﻿@model ArtistsVM
 @{
-    ViewData["Title"] = "Artists";
+	ViewData["Title"] = "Artists";
 }
 
-<h2>Artists</h2>
+<!-- Thumbnails Preview -->
+<div class="mt-4 pb-3 d-flex justify-content-center overflow-auto">
+	<div class="d-flex">
+		@if (Model.Artists.Any()) {
+			@* Adds preview of artists *@
+			@foreach (var artist in Model.Artists.Select((value, index) => new { Value = value, Index = index })) {
+				<div class="px-2">
+					<a href="#artistCarousel" data-bs-slide-to="@artist.Index" class="thumbnail-link">
+						<img src="@artist.Value.ProfilePictureUrl" alt="Profile Picture" class="img-thumbnail preview-thumbnail rounded-circle @(artist.Index == 0 ? "active-thumbnail" : "")" />
+					</a>
+				</div>
+			}
+		}
+		else {
+			@* Single preview item with a question mark *@
+			<div class="px-2">
+				<a href="#artistCarousel" data-bs-slide-to="0" class="thumbnail-link">
+					<img src="https://via.placeholder.com/100?text=?" alt="No Artist" class="img-thumbnail preview-thumbnail rounded-circle" />
+				</a>
+			</div>
+		}
+	</div>
+</div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Website</th>
-            <th>Date of Birth</th>
-            <th>Profile Picture</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var artist in Model) {
-            <tr>
-                <td>@artist.FirstName</td>
-                <td>@artist.LastName</td>
-                <td>@artist.Email</td>
-                <td>
-                    @if (!string.IsNullOrEmpty(artist.Website)) {
-                        <a href="@artist.Website" target="_blank">@artist.Website</a>
-                    }
-                    else {
-                        <span>N/A</span>
-                    }
-                </td>
-                <td>@artist.DateOfBirth.ToString("yyyy-MM-dd")</td>
-                <td>
-                    @if (!string.IsNullOrEmpty(artist.ProfilePictureUrl)) {
-                        <img src="@artist.ProfilePictureUrl" alt="Profile Picture" style="width: 50px; height: 50px;" />
-                    }
-                    else {
-                        <span>No Picture</span>
-                    }
-                </td>
-                <td>
-                    <div class="btn-group">
-                        <a asp-action="Update" asp-controller="Artist" asp-route-id="@artist.Id" class="btn btn-success">Edit</a>
-                        <a asp-action="Delete" asp-controller="Artist" asp-route-id="@artist.Id" class="btn btn-danger">Delete</a>
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<!-- Carousel -->
+<div id="artistCarousel" class="carousel slide" data-bs-interval="false">
+	<div class="carousel-inner">
+		@if (Model.Artists.Any()) {
+			@foreach (var artist in Model.Artists) {
+				var isActive = artist.Equals(Model.Artists.First());
+				<div class="carousel-item @(isActive ? "active" : "")">
+					<div class="d-flex justify-content-center">
+						<div class="card" style="width: 30rem;">
+							<div class="card-body text-center">
+								@*Profile Picture*@
+								@if (!string.IsNullOrEmpty(artist.ProfilePictureUrl)) {
+									<img src="@artist.ProfilePictureUrl" alt="Profile Picture" class="card-img-top rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
+								}
+								else {
+									<div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center rounded-circle" style="width: 150px; height: 150px;">
+										No Picture
+									</div>
+								}
 
-<a asp-action="Create" class="btn btn-primary">Create New</a>
+								@* Name *@
+								<h5 class="card-title mt-3">@artist.FullName</h5>
+
+								@* Email *@
+								<p class="card-text">@artist.Email</p>
+
+								@* Website*@
+								<p class="card-text">
+									@if (!string.IsNullOrEmpty(artist.Website)) {
+										<a href="@artist.Website" target="_blank">@artist.Website</a>
+									}
+									else {
+										<span>N/A</span>
+									}
+								</p>
+
+								@* Birthday *@
+								<p class="card-text">DOB: @artist.DateOfBirth.ToString("yyyy-MM-dd")</p>
+
+								@* Biography Field *@
+								@if (!string.IsNullOrEmpty(artist.Biography)) {
+									<p class="card-text mt-3"><strong>Biography:</strong> @artist.Biography</p>
+								}
+								else {
+									<p class="card-text mt-3"><strong>Biography:</strong> Not Available</p>
+								}
+
+								@if(Model.IsAdmin || Model.ArtistId == artist.Id){
+									<div class="btn-group mt-3">
+										<a asp-action="Update" asp-controller="Artist" asp-route-id="@artist.Id" class="btn btn-success">Edit</a>
+										<a asp-action="Delete" asp-controller="Artist" asp-route-id="@artist.Id" class="btn btn-danger">Delete</a>
+									</div>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+		}
+		else {
+			@* Carousel item with a message indicating no artists were found *@
+			<div class="carousel-item active">
+				<div class="d-flex justify-content-center">
+					<div class="card" style="width: 30rem;">
+						<div class="card-body text-center">
+							<h5 class="card-title">No Artists Found</h5>
+							<p class="card-text">No artists were found that meet the criteria.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+</div>
+@if (Model.Artists.Any()) {
+	<button class="carousel-control-prev" type="button" data-bs-target="#artistCarousel" data-bs-slide="prev">
+		<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+		<span class="visually-hidden">Previous</span>
+	</button>
+	<button class="carousel-control-next" type="button" data-bs-target="#artistCarousel" data-bs-slide="next">
+		<span class="carousel-control-next-icon" aria-hidden="true"></span>
+		<span class="visually-hidden">Next</span>
+	</button>
+}
+
+@section Scripts {
+	<script src="~/js/artistCarousel.js"></script>
+}

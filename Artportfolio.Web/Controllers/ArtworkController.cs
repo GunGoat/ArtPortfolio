@@ -34,8 +34,8 @@ public class ArtworkController : Controller {
 	}
 
 	#region ACTION METHODS
-	public async Task<IActionResult> Index(int? page, string? sortBy, string? timeSpan, string? searchQuery) {
-        ArtworksVM artworksVM = new ArtworksVM {
+	public IActionResult Index(int? page, string? sortBy, string? timeSpan, string? searchQuery) {
+        var artworksVM = new ArtworksVM {
             SortBy = sortBy ?? "",
             TimeSpan = timeSpan ?? "",
             SearchQuery = searchQuery ?? ""
@@ -183,7 +183,7 @@ public class ArtworkController : Controller {
     /// <returns>
     /// A sorted collection of artworks based on the specified criteria.
     /// </returns>
-    public IEnumerable<Artwork> SortArtworks(IEnumerable<Artwork> artworks, string sortBy) {
+    private IEnumerable<Artwork> SortArtworks(IEnumerable<Artwork> artworks, string sortBy) {
         return sortBy switch {
             SD.SortBy_Date_Ascending => artworks.OrderBy(artwork => artwork.CreationDate),
             SD.SortBy_Date_Descending => artworks.OrderByDescending(artwork => artwork.CreationDate),

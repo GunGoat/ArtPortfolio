@@ -1,0 +1,30 @@
+﻿.thumbnail-link {
+    text-decoration: none;
+}
+
+.preview-thumbnail {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+    .preview-thumbnail:hover,
+    .active-thumbnail {
+        border-color: #007bff; /* Highlight color for the active thumbnail */
+    }
+
+.rounded-circle {
+    border-radius: 50%;
+}
+
+/* Ensure thumbnails preview section can scroll horizontally */
+.overflow-auto {
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.d-flex {
+    display: flex;
+}

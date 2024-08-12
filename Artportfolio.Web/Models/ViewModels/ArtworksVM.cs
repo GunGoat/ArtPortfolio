@@ -1,7 +1,4 @@
 ﻿using ArtPortfolio.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using X.PagedList;
-using X.PagedList.Mvc.Core;
 
 namespace ArtPortfolio.Web.Models.ViewModels;
 

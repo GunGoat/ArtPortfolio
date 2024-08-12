@@ -41,7 +41,7 @@
 			</div>
 		</div>
 		<!-- SearchQuery -->
-		<input type="text" name="searchQuery" class="form-control" placeholder="Search @Model.ControllerName" value="@Model.SearchQuery" style="min-width:120px">
+		<input type="text" name="searchQuery" class="form-control" placeholder="Search @Model.ControllerName" value="@(Model.SearchQuery ?? "")" style="min-width:120px">
 		<!-- Submit -->
 		<button class="btn btn-outline-secondary" type="submit">Search</button>
 	</div>
