@@ -1,6 +1,7 @@
 using ArtPortfolio.Application.Common.Interfaces;
 using ArtPortfolio.Domain.Entities;
 using ArtPortfolio.Web.Models;
+using ArtPortfolio.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -22,16 +23,23 @@ namespace ArtPortfolio.Web.Controllers {
 			_unitOfWork = unitOfWork;
 		}
 
-		public IActionResult Index() {
-			//if (_signInManager.IsSignedIn(User) is false) {
-			//	return RedirectToAction("Index", "Artwork");
-			//}
-            return View();
+		public async Task<IActionResult> Index() {
+			if (_signInManager.IsSignedIn(User)) {
+				var user = await _userManager.GetUserAsync(User);
+				var homeVM = new HomeVM {
+					UserName = user.UserName,
+					Artist = _unitOfWork.Artist.Get(artist => artist.Id == user.ArtistId),
+				};
+				return View(homeVM);
+			}
+
+			return RedirectToAction(nameof(IndexNonAuthenticated));
 		}
 
-		public IActionResult Privacy() {
+		public IActionResult IndexNonAuthenticated() {
 			return View();
 		}
+
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 		public IActionResult Error() {

@@ -1,8 +1,61 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model HomeVM
+@if(Model.Artist != null){
+	<div class="container artist-card pt-5">
+		<div class="card shadow border">
+			<div class="card-header bg-success bg-gradient ml-0 py-4">
+				<div class="row">
+					<div class="col-12 text-center">
+						<h2 class="py-2 text-white">@Model.Artist.FullName</h2>
+					</div>
+				</div>
+			</div>
+			<div class="card-body p-4 text-center">
+				<div class="artist-details" style="width:100%;">
+					<div class="card-border">
+						@if (!string.IsNullOrEmpty(Model.Artist.ProfilePictureUrl)) {
+							<div class="mb-3">
+								<img src="@Model.Artist.ProfilePictureUrl" alt="Profile Picture" class="profile-picture" />
+							</div>
+						}
+						<p class="info-item"><strong>Email:</strong> @Model.Artist.Email</p>
+						<p class="info-item"><strong>Website:</strong> <a href="@Model.Artist.Website" target="_blank">@Model.Artist.Website</a></p>
+						<p class="info-item"><strong>Date of Birth:</strong> @Model.Artist.DateOfBirth.ToString("d")</p>
+						<p class="info-item biography"><strong>Biography:</strong> @Model.Artist.Biography</p>
+
+						<div class="btn-group mt-3" role="group" aria-label="Artist Actions">
+							<a asp-action="Create" asp-controller="Artwork" asp-route-artistId="@Model.Artist.Id" class="btn btn-primary">Create Artwork</a>
+							<a asp-action="Update" asp-controller="Artist" asp-route-id="@Model.Artist.Id" class="btn btn-success">Update Artist</a>
+							<a asp-action="Delete" asp-controller="Artist" asp-route-id="@Model.Artist.Id" class="btn btn-danger">Delete Artist</a>
+						</div>
+					</div>
+
+					<div class="card-border">
+						<h3>Artworks</h3>
+						<div id="filterOptions"
+							 data-sort-by=@SD.SortBy_Date_Ascending
+							 data-timespan=@SD.TimeSpan_All
+							 data-search-query=""
+							 data-artist-id="@Model.Artist.Id">
+						</div>
+						<div class="grid">
+							<div class="grid-sizer"></div>
+							@* Adds grid items here *@
+						</div>
+					</div>
+
+					<div class="modal fade" id="artworkDetailsModal" tabindex="-1" aria-labelledby="artworkDetailsModalLabel" aria-hidden="true">
+						<div class="modal-dialog modal-dialog-centered modal-xl">
+							<div class="modal-content">
+								@* Adds artwork detail partial view here *@
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@section Scripts {
+    <script src="~/js/artworkMasonryGrid.js"></script>
+}

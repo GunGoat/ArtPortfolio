@@ -2,6 +2,7 @@
 var sortBy = filterOptions.data('sort-by');
 var timeSpan = filterOptions.data('timespan');
 var searchQuery = filterOptions.data('search-query');
+var artistId = filterOptions.data('artist-id');
 
 // Initialize Masonry grid
 var $grid = $('.grid').masonry({
@@ -21,7 +22,7 @@ var isLoading = false;
 $grid.infiniteScroll({
     path: function () {
         isLoading = true; // Set flag to true when starting to load
-        return `/Artwork/LoadMoreArtworks?page=${this.pageIndex}&sortBy=${encodeURIComponent(sortBy)}&timeSpan=${encodeURIComponent(timeSpan)}&searchQuery=${encodeURIComponent(searchQuery)}`;
+        return `/Artwork/LoadMoreArtworks?page=${this.pageIndex}&sortBy=${encodeURIComponent(sortBy)}&timeSpan=${encodeURIComponent(timeSpan)}&searchQuery=${encodeURIComponent(searchQuery)}&artistId=${encodeURIComponent(artistId)}`;
     },
     responseBody: 'json',             // Expect JSON response
     outlayer: msnry,                  // Use Masonry for layout

@@ -28,3 +28,10 @@
 .d-flex {
     display: flex;
 }
+
+.carousel-control-next-icon,
+.carousel-control-prev-icon {
+    background-color: rgba(0, 0, 0, 0.5); /* Adds a black background with 50% opacity */
+    border-radius: 50%; /* Optional: Make the background circular */
+    padding: 10px; /* Optional: Add some padding around the icon */
+}

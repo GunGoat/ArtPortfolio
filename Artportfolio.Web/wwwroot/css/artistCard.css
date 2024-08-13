@@ -1,0 +1,28 @@
+﻿.artist-card .profile-picture {
+    width: 150px;
+    height: 150px; /* Ensure it's a square */
+    border-radius: 50%; /* Makes the image round */
+    object-fit: cover; /* Ensures the image covers the circle without distortion */
+}
+
+.artist-card .card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center-aligns content horizontally */
+}
+
+.artist-card .card-border {
+    border: 1px solid #ddd; /* Add a light border around the grid */
+    padding: 10px; /* Add some padding inside the border */
+    margin: 10px; /* Add some padding inside the border */
+    border-radius: 5px; /* Optional: add rounded corners */
+}
+
+.artist-card .info-item {
+    margin-bottom: 0.5rem; /* Adjust the spacing between the paragraphs */
+}
+
+.artist-card .biography {
+    max-height: 150px; /* Set a fixed height for the biography section */
+    overflow-y: auto; /* Enable vertical scrolling */
+}

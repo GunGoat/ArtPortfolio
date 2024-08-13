@@ -11,10 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\css\artistCarousel.css" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="wwwroot\js\artworkMasonryGrid.js" />
   </ItemGroup>
 
