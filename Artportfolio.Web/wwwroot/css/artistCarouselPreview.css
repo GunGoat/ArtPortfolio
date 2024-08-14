@@ -5,9 +5,13 @@
 .preview-thumbnail {
     width: 100px;
     height: 100px;
+    min-width: 100px; /* Prevents shrinking below 100px */
+    min-height: 100px; /* Prevents shrinking below 100px */
     object-fit: cover;
+    aspect-ratio: 1 / 1; /* Ensure the image remains circular */
     border: 2px solid transparent;
     transition: border-color 0.3s ease;
+    flex-shrink: 0; /* Prevent the image from shrinking */
 }
 
     .preview-thumbnail:hover,
@@ -27,6 +31,7 @@
 
 .d-flex {
     display: flex;
+    flex-wrap: nowrap; /* Prevents wrapping and ensures horizontal scrolling */
 }
 
 .carousel-control-next-icon,

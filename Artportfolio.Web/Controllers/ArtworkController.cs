@@ -81,35 +81,45 @@ public class ArtworkController : Controller {
 	}
 
 	// CREATE ARTWORK
-	[Authorize(Roles = SD.Role_Artist)]
-	public IActionResult Create() {
-		var artists = _unitOfWork.Artist.GetAll().Select(artist =>
-			new SelectListItem {
-				Text = artist.FullName,
-				Value = artist.Id.ToString()
-			});
-		ViewBag.Artists = artists;
-		return View();
+	public async Task<IActionResult> Create() {
+        var user = await _userManager.GetUserAsync(User);
+        var validationResult = ValidateUser(user);
+        if (validationResult != null) return validationResult;
+
+        var artwork = new Artwork {
+			ArtistId = user.ArtistId.Value 
+		};
+		return View(artwork);
 	}
 
-	[HttpPost]
-	public IActionResult Create(Artwork artwork) {
-		ModelState.Remove("ImageUrl");
-		if (ModelState.IsValid && artwork.Image is not null && string.IsNullOrEmpty(artwork.ImageUrl)) {
-			SaveArtworkImage(artwork);
-			_unitOfWork.Artwork.Add(artwork);
-			_unitOfWork.Artwork.Save();
-			TempData["success"] = "The artwork has been created successfully.";
-			return RedirectToAction(nameof(Index));
-		}
-		TempData["error"] = "The artwork could not be created.";
-		return View();
-	}
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Create(Artwork artwork) {
+        var user = await _userManager.GetUserAsync(User);
+        var validationResult = ValidateUser(user);
+        if (validationResult != null) return validationResult;
+
+        artwork.ArtistId = user.ArtistId.Value;
+        ModelState.Remove("ImageUrl");
+        if (ModelState.IsValid && artwork.Image is not null && string.IsNullOrEmpty(artwork.ImageUrl)) {
+            SaveArtworkImage(artwork);
+            _unitOfWork.Artwork.Add(artwork);
+            _unitOfWork.Artwork.Save();
+            TempData["success"] = "The artwork has been created successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+        TempData["error"] = "The artwork could not be created.";
+        return View(artwork); // Pass the artwork model back to the view if validation fails
+    }
 
 
-	// UPDATE ARTWORK
-	public IActionResult Update(int id) {
-		var artwork = _unitOfWork.Artwork.Get(artwork => artwork.Id == id);
+    // UPDATE ARTWORK
+    public async Task<IActionResult> Update(int id) {
+        var user = await _userManager.GetUserAsync(User);
+        var validationResult = ValidateUser(user, id);
+        if (validationResult != null) return validationResult;
+
+        var artwork = _unitOfWork.Artwork.Get(artwork => artwork.Id == id);
 		if (artwork is null) {
 			return RedirectToAction("Error", "Home");
 		}
@@ -124,8 +134,14 @@ public class ArtworkController : Controller {
 	}
 
 	[HttpPost]
-	public IActionResult Update(Artwork artwork) {
-		if (ModelState.IsValid) {
+	[Authorize]
+    public async Task<IActionResult> Update(Artwork artwork) {
+        int id = artwork.Id;
+        var user = await _userManager.GetUserAsync(User);
+        var validationResult = ValidateUser(user, id);
+        if (validationResult != null) return validationResult;
+
+        if (ModelState.IsValid) {
 			SaveArtworkImage(artwork);
 			_unitOfWork.Artwork.Update(artwork);
 			_unitOfWork.Artwork.Save();
@@ -137,18 +153,24 @@ public class ArtworkController : Controller {
 	}
 
 
-	// DELETE ARTWORK
-	public IActionResult Delete(int id) {
-		Artwork? artworkFromDb = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");
-		if (artworkFromDb is null) {
-			return RedirectToAction("Error", "Home");
-		}
+    // DELETE ARTWORK
+    public async Task<IActionResult> Delete(int id) {
+        var user = await _userManager.GetUserAsync(User);
+        var validationResult = ValidateUser(user, id);
+        if (validationResult != null) return validationResult;
+
+        Artwork? artworkFromDb = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");
 		return View(artworkFromDb);
 	}
 
 	[HttpPost]
-	public IActionResult Delete(Artwork artwork) {
+	[Authorize]
+    public async Task<IActionResult> Delete(Artwork artwork) {
 		int id = artwork.Id;
+		var user = await _userManager.GetUserAsync(User);
+        var validationResult = ValidateUser(user, id);
+        if (validationResult != null) return validationResult;
+
 		Artwork? artworkFromDb = _unitOfWork.Artwork.Get(artwork => artwork.Id == id, includeProperties: "Artist");
 		if (artworkFromDb is not null) {
 			DeleteArtworkImage(artworkFromDb);
@@ -160,29 +182,69 @@ public class ArtworkController : Controller {
 		TempData["error"] = "The artwork could not be deleted.";
 		return View();
 	}
-	#endregion
+    #endregion
 
-	#region PRIVATE METHODS
-	/// <summary>
-	/// Sorts a collection of artworks based on the specified sorting criteria.
-	/// </summary>
-	/// <param name="artworks">The collection of artworks to be sorted.</param>
-	/// <param name="sortBy">
-	/// The sorting criteria, which can be one of the following values:
-	/// <list type="bullet">
-	/// <item><description>SD.SortBy_Date_Ascending</description></item>
-	/// <item><description>SD.SortBy_Date_Descending</description></item>
-	/// <item><description>SD.SortBy_Title_Ascending</description></item>
-	/// <item><description>SD.SortBy_Title_Descending</description></item>
-	/// <item><description>SD.SortBy_Price_Ascending</description></item>
-	/// <item><description>SD.SortBy_Price_Descending</description></item>
-	/// </list>
-	/// If an invalid value is provided, the artworks will be sorted by creation date in ascending order by default.
-	/// </param>
-	/// <returns>
-	/// A sorted collection of artworks based on the specified criteria.
-	/// </returns>
-	private IEnumerable<Artwork> SortArtworks(IEnumerable<Artwork> artworks, string sortBy) {
+    #region PRIVATE METHODS
+
+    /// <summary>
+    /// Validates the user based on their sign-in status, artist profile linkage, and optional artwork access permissions.
+    /// </summary>
+    /// <param name="user">The user to validate. Must be non-null and linked to an artist profile.</param>
+    /// <param name="artworkId">An optional artwork ID. If provided, additional checks are performed to ensure the user has 
+    /// appropriate permissions to access the artwork.</param>
+    /// <returns>
+    /// An <see cref="IActionResult"/> that redirects to the "Index" action of the "Home" controller with an error message 
+    /// if validation fails. Returns null if validation is successful.
+    /// </returns>
+    private IActionResult ValidateUser(ApplicationUser user, int? artworkId = null) {
+        if (user is null) {
+            TempData["error"] = "This action could not be completed; the user must be signed in.";
+            return RedirectToAction("Index", "Home");
+        }
+        if (!user.ArtistId.HasValue) {
+            TempData["error"] = "This action could not be completed; the account is not linked to an artist profile.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        if (artworkId.HasValue) {
+            var artworkWasFound = _unitOfWork.Artwork.Any(artwork => artwork.Id == artworkId.Value);
+            if (!artworkWasFound) {
+                TempData["error"] = "The artwork could not be found.";
+                return RedirectToAction("Error", "Home");
+            }
+
+            // Check if the user is an admin or if the user's ArtistId matches the artwork's ArtistId
+            var artworkPermissionToManage = _unitOfWork.Artwork.Any(artwork => artwork.Id == artworkId.Value && artwork.ArtistId == user.ArtistId);
+            if (!artworkPermissionToManage) {
+                TempData["error"] = "You do not have permission to access this artwork.";
+                return RedirectToAction("Error", "Home");
+            }
+        }
+
+        return null;
+    }
+
+
+    /// <summary>
+    /// Sorts a collection of artworks based on the specified sorting criteria.
+    /// </summary>
+    /// <param name="artworks">The collection of artworks to be sorted.</param>
+    /// <param name="sortBy">
+    /// The sorting criteria, which can be one of the following values:
+    /// <list type="bullet">
+    /// <item><description>SD.SortBy_Date_Ascending</description></item>
+    /// <item><description>SD.SortBy_Date_Descending</description></item>
+    /// <item><description>SD.SortBy_Title_Ascending</description></item>
+    /// <item><description>SD.SortBy_Title_Descending</description></item>
+    /// <item><description>SD.SortBy_Price_Ascending</description></item>
+    /// <item><description>SD.SortBy_Price_Descending</description></item>
+    /// </list>
+    /// If an invalid value is provided, the artworks will be sorted by creation date in ascending order by default.
+    /// </param>
+    /// <returns>
+    /// A sorted collection of artworks based on the specified criteria.
+    /// </returns>
+    private IEnumerable<Artwork> SortArtworks(IEnumerable<Artwork> artworks, string sortBy) {
 		return sortBy switch {
 			SD.SortBy_Date_Ascending => artworks.OrderBy(artwork => artwork.CreationDate),
 			SD.SortBy_Date_Descending => artworks.OrderByDescending(artwork => artwork.CreationDate),

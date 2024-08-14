@@ -1,8 +1,8 @@
 ﻿@model HomeVM
-@if(Model.Artist != null){
+@if (Model.Artist != null) {
 	<div class="container artist-card pt-5">
 		<div class="card shadow border">
-			<div class="card-header bg-success bg-gradient ml-0 py-4">
+			<div class="card-header bg-success bg-gradient py-4">
 				<div class="row">
 					<div class="col-12 text-center">
 						<h2 class="py-2 text-white">@Model.Artist.FullName</h2>
@@ -12,11 +12,15 @@
 			<div class="card-body p-4 text-center">
 				<div class="artist-details" style="width:100%;">
 					<div class="card-border">
-						@if (!string.IsNullOrEmpty(Model.Artist.ProfilePictureUrl)) {
-							<div class="mb-3">
+
+						<div class="mb-3">
+							@if (!string.IsNullOrEmpty(Model.Artist.ProfilePictureUrl)) {
 								<img src="@Model.Artist.ProfilePictureUrl" alt="Profile Picture" class="profile-picture" />
-							</div>
-						}
+							}
+							else {
+								<img src="~/images/PlaceholderProfilePicture.jpg" alt="Profile Picture" class="profile-picture" />
+							}
+						</div>
 						<p class="info-item"><strong>Email:</strong> @Model.Artist.Email</p>
 						<p class="info-item"><strong>Website:</strong> <a href="@Model.Artist.Website" target="_blank">@Model.Artist.Website</a></p>
 						<p class="info-item"><strong>Date of Birth:</strong> @Model.Artist.DateOfBirth.ToString("d")</p>
@@ -55,7 +59,34 @@
 		</div>
 	</div>
 }
+else {
+	<div class="container artist-card pt-5">
+		<div class="card shadow border">
+			<div class="card-header bg-success bg-gradient py-4">
+				<div class="row">
+					<div class="col-12 text-center">
+						<h2 class="py-2 text-white">Artist Profile</h2>
+					</div>
+				</div>
+			</div>
+			<div class="card-body p-4 text-center">
+				<div class="artist-details" style="width:100%;">
+					<div class="card-border">
+						<div class="mb-3">
+							<img src="~/images/PlaceholderProfilePicture.jpg" alt="Profile Picture" class="profile-picture" />
+						</div>
+						<p>An artist profile has not yet been created for this account.</p> 
+						<p>Please create a new artist profile to manage artworks and other details.</p>
+						<div class="btn-group mt-3" role="group" aria-label="Artist Actions">
+							<a asp-action="Create" asp-controller="Artist" class="btn btn-primary">Create Artist</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
 
 @section Scripts {
-    <script src="~/js/artworkMasonryGrid.js"></script>
+	<script src="~/js/artworkMasonryGrid.js"></script>
 }

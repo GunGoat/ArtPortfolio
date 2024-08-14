@@ -1,124 +1,138 @@
 ﻿@model ArtistsVM
 @{
-    ViewData["Title"] = "Artists";
+	ViewData["Title"] = "Artists";
 }
 
 <!-- Thumbnails Preview -->
 <div class="mt-4 pb-3 d-flex justify-content-center overflow-auto">
-    <div class="d-flex">
-        @if (Model.Artists.Any()) {
-            @* Adds preview of artists *@
-            @foreach (var artist in Model.Artists.Select((value, index) => new { Value = value, Index = index })) {
-                <div class="px-2">
-                    <a href="#artistCarousel" data-bs-slide-to="@artist.Index" class="thumbnail-link">
-                        <img src="@artist.Value.ProfilePictureUrl" alt="Profile Picture" class="img-thumbnail preview-thumbnail rounded-circle @(artist.Index == 0 ? "active-thumbnail" : "")" />
-                    </a>
-                </div>
-            }
-        }
-        else {
-            @* Single preview item with a question mark *@
-            <div class="px-2">
-                <a href="#artistCarousel" data-bs-slide-to="0" class="thumbnail-link">
-                    <img src="https://via.placeholder.com/100?text=?" alt="No Artist" class="img-thumbnail preview-thumbnail rounded-circle" />
-                </a>
-            </div>
-        }
-    </div>
+	<div class="d-flex">
+		@if (Model.Artists.Any()) {
+			@* Adds preview of artists *@
+			@foreach (var artist in Model.Artists.Select((value, index) => new { Value = value, Index = index })) {
+				<div class="px-2">
+					<a href="#artistCarousel" data-bs-slide-to="@artist.Index" class="thumbnail-link">
+						<img src="@artist.Value.ProfilePictureUrl" alt="Profile Picture" class="img-thumbnail preview-thumbnail rounded-circle @(artist.Index == 0 ? "active-thumbnail" : "")" />
+					</a>
+				</div>
+			}
+		}
+		else {
+			@* Single preview item with a question mark *@
+			<div class="px-2">
+				<a href="#artistCarousel" data-bs-slide-to="0" class="thumbnail-link">
+					<img src="~/images/PlaceholderProfilePicture.jpg" alt="No Artist" class="img-thumbnail preview-thumbnail rounded-circle" />
+				</a>
+			</div>
+		}
+	</div>
 </div>
 
 <!-- Carousel -->
 <div id="artistCarousel" class="carousel slide" data-bs-interval="false">
-    <div class="carousel-inner">
-        @if (Model.Artists.Any()) {
-            @foreach (var artist in Model.Artists) {
-                var isActive = artist.Equals(Model.Artists.First());
-                <div class="carousel-item @(isActive ? "active" : "")">
-                    <div class="artist-card d-flex justify-content-center mb-5">
-                        <div class="card shadow border col-12 col-md-8 col-lg-6">
-                            <div class="card-header bg-success bg-gradient ml-0 py-4">
-                                <div class="row">
-                                    <div class="col-12 text-center">
-                                        <h2 class="py-2 text-white">@artist.FullName</h2>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body p-4 text-center">
-                                <div class="artist-details" style="width:100%;">
-                                    <div class="card-border">
-                                        @if (!string.IsNullOrEmpty(artist.ProfilePictureUrl)) {
-                                            <div class="mb-3">
-                                                <img src="@artist.ProfilePictureUrl" alt="Profile Picture" class="profile-picture" />
-                                            </div>
-                                        }
-                                        else {
-                                            <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center rounded-circle" style="width: 150px; height: 150px;">
-                                                No Picture
-                                            </div>
-                                        }
+	<div class="carousel-inner">
+		@if (Model.Artists.Any()) {
+			@foreach (var artist in Model.Artists) {
+				var isActive = artist.Equals(Model.Artists.First());
+				<div class="carousel-item @(isActive ? "active" : "")">
+					<div class="artist-card d-flex justify-content-center mb-5">
+						<div class="card shadow border col-12 col-md-8 col-lg-6">
+							<div class="card-header bg-success bg-gradient ml-0 py-4">
+								<div class="row">
+									<div class="col-12 text-center">
+										<h2 class="py-2 text-white">@artist.FullName</h2>
+									</div>
+								</div>
+							</div>
+							<div class="card-body p-4 text-center">
+								<div class="artist-details" style="width:100%;">
+									<div class="card-border">
+										<div class="mb-3">
+											@if (!string.IsNullOrEmpty(artist.ProfilePictureUrl)) {
+												<img src="@artist.ProfilePictureUrl" alt="Profile Picture" class="profile-picture" />
+											}
+											else {
+												<img src="~/images/PlaceholderProfilePicture.jpg" alt="Profile Picture" class="profile-picture" />
+											}
+										</div>
 
-                                        <p class="info-item"><strong>Email:</strong> @artist.Email</p>
-                                        <p class="info-item">
-                                            <strong>Website:</strong>
-                                            @if (!string.IsNullOrEmpty(artist.Website)) {
-                                                <a href="@artist.Website" target="_blank">@artist.Website</a>
-                                            }
-                                            else {
-                                                <span>N/A</span>
-                                            }
-                                        </p>
-                                        <p class="info-item"><strong>Date of Birth:</strong> @artist.DateOfBirth.ToString("d")</p>
-                                        <p class="info-item biography">
-                                            <strong>Biography:</strong>
-                                            @if (!string.IsNullOrEmpty(artist.Biography)) {
-                                                @artist.Biography
-                                            }
-                                            else {
-                                                <span>Not Available</span>
-                                            }
-                                        </p>
 
-                                        @if (Model.IsAdmin || Model.ArtistId == artist.Id) {
-                                            <div class="btn-group mt-3" role="group" aria-label="Artist Actions">
-                                                <a asp-action="Update" asp-controller="Artist" asp-route-id="@artist.Id" class="btn btn-success">Update Artist</a>
-                                                <a asp-action="Delete" asp-controller="Artist" asp-route-id="@artist.Id" class="btn btn-danger">Delete Artist</a>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-        else {
-            @* Carousel item with a message indicating no artists were found *@
-            <div class="carousel-item active">
-                <div class="d-flex justify-content-center">
-                    <div class="card col-12 col-md-8 col-lg-6">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">No Artists Found</h5>
-                            <p class="card-text">No artists were found that meet the criteria.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
+										<p class="info-item"><strong>Email:</strong> @artist.Email</p>
+										<p class="info-item">
+											<strong>Website:</strong>
+											@if (!string.IsNullOrEmpty(artist.Website)) {
+												<a href="@artist.Website" target="_blank">@artist.Website</a>
+											}
+											else {
+												<span>N/A</span>
+											}
+										</p>
+										<p class="info-item"><strong>Date of Birth:</strong> @artist.DateOfBirth.ToString("d")</p>
+										<p class="info-item biography">
+											<strong>Biography:</strong>
+											@if (!string.IsNullOrEmpty(artist.Biography)) {
+												@artist.Biography
+											}
+											else {
+												<span>Not Available</span>
+											}
+										</p>
+
+										@if (Model.IsAdmin || Model.ArtistId == artist.Id) {
+											<div class="btn-group mt-3" role="group" aria-label="Artist Actions">
+												<a asp-action="Update" asp-controller="Artist" asp-route-id="@artist.Id" class="btn btn-success">Update Artist</a>
+												<a asp-action="Delete" asp-controller="Artist" asp-route-id="@artist.Id" class="btn btn-danger">Delete Artist</a>
+											</div>
+										}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+		}
+		else {
+			@* Carousel item with a message indicating no artists were found *@
+			<div class="carousel-item active">
+				<div class="artist-card d-flex justify-content-center mb-5">
+					<div class="card shadow border col-12 col-md-8 col-lg-6">
+						<div class="card-header bg-success bg-gradient ml-0 py-4">
+							<div class="row">
+								<div class="col-12 text-center">
+									<h2 class="py-2 text-white">No Artists Found</h2>
+								</div>
+							</div>
+						</div>
+						<div class="card-body p-4 text-center">
+							<div class="artist-details" style="width:100%;">
+								<div class="card-border">
+									<div class="mb-3">
+										<img src="~/images/PlaceholderProfilePicture.jpg" alt="Profile Picture" class="profile-picture" />
+									</div>
+									<p class="info-item">
+										No artists were found that meet the search criteria.
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
 </div>
 
 @if (Model.Artists.Any()) {
-    <button class="carousel-control-prev" type="button" data-bs-target="#artistCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#artistCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
+	<button class="carousel-control-prev" type="button" data-bs-target="#artistCarousel" data-bs-slide="prev">
+		<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+		<span class="visually-hidden">Previous</span>
+	</button>
+	<button class="carousel-control-next" type="button" data-bs-target="#artistCarousel" data-bs-slide="next">
+		<span class="carousel-control-next-icon" aria-hidden="true"></span>
+		<span class="visually-hidden">Next</span>
+	</button>
 }
 
 @section Scripts {
-    <script src="~/js/artistCarouselPreview.js"></script>
+	<script src="~/js/artistCarouselPreview.js"></script>
 }

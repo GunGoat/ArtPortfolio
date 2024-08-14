@@ -2,6 +2,32 @@
     ViewData["Title"] = "Welcome to ArtPortfolio";
 }
 
-<h2>Welcome to ArtPortfolio</h2>
-<p>To view your profile and manage your portfolio, please <a asp-controller="Account" asp-action="SignUp">sign up</a> or <a asp-controller="Account" asp-action="LogIn">log in</a>.</p>
-
+<div class="container artist-card pt-5">
+	<div class="card shadow border w-75 mx-auto">
+		<div class="card-header bg-success bg-gradient py-4">
+			<div class="row">
+				<div class="col-12 text-center">
+					<h2 class="py-2 text-white">Welcome to ArtPortfolio</h2>
+				</div>
+			</div>
+		</div>
+		<div class="card-body p-4 text-center">
+			<div class="artist-details" style="width:100%;">
+				<div class="card-border">
+					<div class="mb-3">
+						<img src="~/images/PlaceholderProfilePicture.jpg" alt="Profile Picture" class="profile-picture" />
+					</div>
+					<p>
+						To view your profile and manage your portfolio, please
+						<a asp-controller="Account" asp-action="SignUp">sign up</a> or
+						<a asp-controller="Account" asp-action="LogIn">log in</a>.
+					</p>
+					<p>
+						You can also explore the <a asp-controller="Artwork" asp-action="Index">artworks</a> and
+						discover various <a asp-controller="Artist" asp-action="Index">artists</a> without creating an account.
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

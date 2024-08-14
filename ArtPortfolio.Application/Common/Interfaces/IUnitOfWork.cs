@@ -9,4 +9,5 @@ namespace ArtPortfolio.Application.Common.Interfaces;
 public interface IUnitOfWork {
 	IArtistRepository Artist { get; }
 	IArtworkRepository Artwork { get; }
+	IApplicationUserRepository ApplicationUser { get; }
 }
