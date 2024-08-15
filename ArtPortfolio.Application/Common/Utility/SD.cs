@@ -10,9 +10,6 @@ public static class SD {
     public const string Role_Admin = "Admin";
     public const string Role_Artist = "Artist";
 
-    public const string Policy_Artwork_Update_Delete = "PolicyArtworkUpdateDelete";
-    public const string Policy_Artwork_Create = "PolicyArtworkCreate";
-
 	public const string TimeSpan_Week = "Week";
 	public const string TimeSpan_Month = "Month";
 	public const string TimeSpan_Year = "Year";
